@@ -1,0 +1,74 @@
+{
+  "name": "information",
+  "text": "Information",
+  "icon": "icon-list_square",
+  "children": [
+    {
+      "name": "description",
+      "text": "Description",
+      "icon": "icon-list_square",
+      "component": "description_default"
+    },
+    {
+      "name": "specification",
+      "text": "Specification",
+      "icon": "icon-list_square",
+      "component": "specification_table",
+      "table": [
+        {
+          "title": "Sensor Flow",
+          "rows": [
+            ["Model", "BOQU BQ-OCFM"],
+            ["Rentang ukur", "0.1 L/s ‒ 10 m³/s"],
+            ["Resolusi", "1 mm"],
+            ["Akurasi", "±3% FS Flow, ±0.3% FS Level"],
+            ["Temperatur kerja", "-20°C ‒ 55°C"],
+            ["Sistem komunikasi", "RS-485"]
+          ]
+        },
+        {
+          "title": "Sensor TSS",
+          "rows": [
+            ["Model", "BOQU ZDYG-2087-01"],
+            ["Rentang ukur", "0.01 ‒ 20000 mg/L,0.01 ‒ 45000 mg/L ,0.01 ‒ 120000 mg/L"],
+            ["Resolusi", "≤± 5% nilai ukur"],
+            ["Temperatur kerja", "0 °C ‒ 45 °C"],
+            ["Sistem komunikasi", "RS-485"]
+          ]
+        },
+        {
+          "title": "Sensor pH",
+          "rows": [
+            ["Model", "BOQU IOT-485-PH"],
+            ["Rentang ukur", "0 ‒ 14 pH"],
+            ["Resolusi", "0.01 pH"],
+            ["Akurasi", "±0.1 pH"],
+            ["Temperatur kerja", "0 °C ‒ 65 °C"],
+            ["Sistem komunikasi", "RS-485"]
+          ]
+        },
+        {
+          "title": "Sensor COD",
+          "rows": [
+            ["Model", "BOQU COD550"],
+            ["Rentang ukur", "0.75 ‒ 1000 mg/L"],
+            ["Resolusi", "0.01 mg/L"],
+            ["Temperatur kerja", "5 °C ‒ 45 °C"],
+            ["Sistem komunikasi", "RS-485"]
+          ]
+        },
+        {
+          "title": "Sensor NH3N",
+          "rows": [
+            ["Model", "BOQU BH-485-NH"],
+            ["Rentang ukur", "0.1 ‒ 1000 mg/L"],
+            ["Resolusi", "0.01 mg/L"],
+            ["Akurasi", "±5% 0.2 mg/L"],
+            ["Temperatur kerja", "0 °C ‒ 45 °C"],
+            ["Sistem komunikasi", "RS-485"]
+          ]
+        }
+      ]
+    }
+  ]
+}

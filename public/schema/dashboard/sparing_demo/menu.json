@@ -1,0 +1,85 @@
+[{
+  "id": 0,
+  "parent_id": 0,
+  "name": "overview",
+  "text": "Overview",
+  "icon": "icon-overview",
+  "link": ""
+}, {
+  "id": 1,
+  "parent_id": 1,
+  "name": "information",
+  "text": "Information",
+  "icon": "icon-information",
+  "link": ""
+}, {
+  "id": 2,
+  "parent_id": 1,
+  "name": "description",
+  "text": "Description",
+  "icon": "icon-list_square",
+  "link": ""
+}, {
+  "id": 3,
+  "parent_id": 1,
+  "name": "specification",
+  "text": "Specification",
+  "icon": "icon-list_square",
+  "link": ""
+}, {
+  "id": 4,
+  "parent_id": 4,
+  "name": "data_log",
+  "text": "Data Log",
+  "icon": "icon-data",
+  "link": ""
+}, {
+  "id": 5,
+  "parent_id": 4,
+  "name": "flow_sensor",
+  "text": "Flow",
+  "icon": "icon-list_square",
+  "link": "/data_log/flow_sensor/Flow_Demo"
+}, {
+  "id": 6,
+  "parent_id": 4,
+  "name": "tss_sensor",
+  "text": "TSS",
+  "icon": "icon-list_square",
+  "link": "/data_log/tss_sensor/TSS_Demo"
+}, {
+  "id": 7,
+  "parent_id": 4,
+  "name": "ph_sensor",
+  "text": "pH",
+  "icon": "icon-list_square",
+  "link": "/data_log/ph_sensor/pH_Demo"
+}, {
+  "id": 8,
+  "parent_id": 4,
+  "name": "cod_sensor",
+  "text": "COD",
+  "icon": "icon-list_square",
+  "link": "/data_log/cod_sensor/COD_Demo"
+}, {
+  "id": 9,
+  "parent_id": 4,
+  "name": "nh3n_sensor",
+  "text": "NH3N",
+  "icon": "icon-list_square",
+  "link": "/data_log/nh3n_sensor/NH3N_Demo"
+}, {
+  "id": 10,
+  "parent_id": 4,
+  "name": "power_monitor",
+  "text": "Power Monitor",
+  "icon": "icon-list_square",
+  "link": "/data_log/power_monitor/power_monitor"
+}, {
+  "id": 11,
+  "parent_id": 11,
+  "name": "dataset_log",
+  "text": "Data Set",
+  "icon": "icon-data_buffer",
+  "link": ""
+}]

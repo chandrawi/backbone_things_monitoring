@@ -1,0 +1,11 @@
+{
+  "name":"overview_cards",
+  "text": "Sparing Demo",
+  "icon": "icon-list_square",
+  "set": { "id": "0944dd19-a398-495a-bfc1-b5899ce4056c", "name": "Sparing_Demo" },
+  "config": {
+    "live_ranges": [1800000, 3600000, 14400000, 43200000, 86400000, 604800000, 2592000000],
+    "live_range": 3600000,
+    "float_precission": [4, 2, 3, 2, 2]
+  }
+}

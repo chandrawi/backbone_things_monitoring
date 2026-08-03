@@ -1,0 +1,122 @@
+{
+  "name": "data_log",
+  "text": "Data Log",
+  "icon": "icon-data",
+  "mode": "flat",
+  "children": [
+    {
+      "name": "flow_sensor",
+      "text": "Flow",
+      "icon": "icon-list_square",
+      "model_id": "1465e00f-41bb-4d74-88ad-67e7bcdf6181",
+      "model_index": [0],
+      "devices": [
+        { "id": "1ef8147e-4c54-404f-890a-2bff30c46556", "name": "Flow_Demo" }
+      ],
+      "config": {
+        "live_ranges": [300000, 900000, 1800000, 3600000, 14400000, 43200000, 86400000],
+        "live_range": 3600000,
+        "view_mode": "table",
+        "time_mode": "live",
+        "float_precission": [4],
+        "chart_value_range": [[0.01]],
+        "max_lost": 900000
+      }
+    },
+    {
+      "name": "tss_sensor",
+      "text": "TSS",
+      "icon": "icon-list_square",
+      "model_id": "4728932b-7e61-4793-a0cc-e3a9b789ebcf",
+      "model_index": [0],
+      "devices": [
+        { "id": "27d99e5a-09fe-466b-adab-d253ff2ba46d", "name": "TSS_Demo" }
+      ],
+      "config": {
+        "live_ranges": [300000, 900000, 1800000, 3600000, 14400000, 43200000, 86400000],
+        "live_range": 3600000,
+        "view_mode": "table",
+        "time_mode": "live",
+        "float_precission": [2],
+        "chart_value_range": [[5]],
+        "max_lost": 900000
+      }
+    },
+    {
+      "name": "ph_sensor",
+      "text": "pH",
+      "icon": "icon-list_square",
+      "model_id": "7a07c4a7-517b-4c0b-93ac-703a0d1be8e3",
+      "model_index": [0],
+      "devices": [
+        { "id": "37093fd7-2d84-420c-bf5d-637e12b4b8f3", "name": "pH_Demo" }
+      ],
+      "config": {
+        "live_ranges": [300000, 900000, 1800000, 3600000, 14400000, 43200000, 86400000],
+        "live_range": 3600000,
+        "view_mode": "table",
+        "time_mode": "live",
+        "float_precission": [3],
+        "chart_value_range": [[1]],
+        "max_lost": 900000
+      }
+    },
+    {
+      "name": "cod_sensor",
+      "text": "COD",
+      "icon": "icon-list_square",
+      "model_id": "979b5263-9df6-4434-b870-e00b0855d7ed",
+      "model_index": [0],
+      "devices": [
+        { "id": "489c1eb3-edfe-41c0-8be0-f73bfe27bdf7", "name": "COD_Demo" }
+      ],
+      "config": {
+        "live_ranges": [300000, 900000, 1800000, 3600000, 14400000, 43200000, 86400000],
+        "live_range": 3600000,
+        "view_mode": "table",
+        "time_mode": "live",
+        "float_precission": [3],
+        "chart_value_range": [[5]],
+        "max_lost": 900000
+      }
+    },
+    {
+      "name": "nh3n_sensor",
+      "text": "NH3N",
+      "icon": "icon-list_square",
+      "model_id": "bf95f00f-d59f-4fc6-8979-31a5500faecb",
+      "model_index": [0],
+      "devices": [
+        { "id": "5761bcbe-586a-48c4-8074-16b8d75bc238", "name": "NH3N_Demo" }
+      ],
+      "config": {
+        "live_ranges": [300000, 900000, 1800000, 3600000, 14400000, 43200000, 86400000],
+        "live_range": 3600000,
+        "view_mode": "table",
+        "time_mode": "live",
+        "float_precission": [3],
+        "chart_value_range": [[5]],
+        "max_lost": 900000
+      }
+    },
+    {
+      "name": "power_monitor",
+      "text": "Power Monitor",
+      "icon": "icon-list_square",
+      "model_id": "cfe2c3d4-a44d-4ad9-8660-3c122e5caf89",
+      "model_index": [1,2,5,6],
+      "devices": [
+        { "id": "f0e08140-f2e9-47f0-bef5-0af1dbb9c712", "name": "power_monitor" }
+      ],
+      "config": {
+        "live_ranges": [300000, 900000, 1800000, 3600000, 14400000, 43200000, 86400000],
+        "live_range": 3600000,
+        "view_mode": "table",
+        "time_mode": "live",
+        "float_precission": [3],
+        "chart_value_range": [[1],[0.1],[1],[0.1]],
+        "max_lost": 900000
+      }
+    }
+  ]
+}
