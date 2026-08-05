@@ -1,4 +1,4 @@
-import { Show, For, createSignal, createResource, createEffect } from "solid-js";
+import { Show, For, createSignal, createResource, createEffect, createMemo } from "solid-js";
 import { useSearchParams } from "@solidjs/router";
 import { read_set, list_model_by_ids, list_data_set_by_range } from "bbthings_grpc/resource";
 import { resourceServer } from "~/lib/store";
@@ -15,14 +15,19 @@ export default function OverviewCards(props: OverviewCardsProps) {
   const config = props.overview.config;
   const api_id = props.resource.api_id;
 
+  // construct resource input object using overview schema
+  const input = createMemo(() => {
+    return { overview: props.overview };
+  });
+
   // define time later setting signal
   const [searchParams, setSearchParams] = useSearchParams();
   const initTimeLater= typeof searchParams.later === "string" ? parseInt(searchParams.later) : config.live_range;
   let [timeLater, setTimeLater] = createSignal(initTimeLater);
 
   // get data set definition based on set id in overview schema
-  const [set] = createResource(props.overview, async (overview) => {
-    return await read_set(resourceServer.get(api_id)!, { id: overview.set.id })
+  const [set] = createResource(input, async (input) => {
+    return await read_set(resourceServer.get(api_id)!, { id: input.overview.set.id })
       .catch((error) => {
         console.error(error);
         return null;
@@ -77,7 +82,7 @@ export default function OverviewCards(props: OverviewCardsProps) {
           ? typeof config.float_precission[i] == "number" ? config.float_precission[i] : null
           : null;
         dataLast.push({
-          ts: dataset ? dateToString(dataset.timestamp) : null,
+          timestamp: dataset ? dateToString(dataset.timestamp) : null,
           data: dataset ? Number(dataset.data[i]) : null,
           scale: scale,
           symbol: symbol,
@@ -165,7 +170,7 @@ export default function OverviewCards(props: OverviewCardsProps) {
                   <span class="text-sm/8">&nbsp;{String(item.symbol)}</span>
                 </div>
                 <div class="flex flex-row justify-center py-2 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-gray-900">
-                  <span class="text-sm">{item.ts}&nbsp;</span>
+                  <span class="text-sm">{item.timestamp}&nbsp;</span>
                 </div>
               </div>
             </div>

@@ -55,6 +55,35 @@ export function rangeName(range: number) {
   else if(range == 86400000) return "1 day";
   else return String(range / 86400000) + " day(s)";
 }
+export function exportToCsv(filename: string, data: object[]): void {
+  if (!data || !data.length) return;
+  // Extract column headers dynamically from keys
+  const headers = Object.keys(data[0]);
+  // Format rows and escape quotes/commas properly
+  const csvRows = data.map(row => 
+    headers.map(header => {
+      const value = (row as any)[header] ?? '';
+      const stringified = typeof value === 'string' ? value : String(value);
+      // Escape inner quotes and wrap text in quotes if commas/quotes exist
+      const escaped = stringified.replace(/"/g, '""');
+      return escaped.includes(',') || escaped.includes('"') ? `"${escaped}"` : escaped;
+    }).join(',')
+  );
+  // Combine headers and rows with line breaks
+  const csvContent = [headers.join(','), ...csvRows].join('\n');
+  // Generate a Blob and trigger browser download
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', `${filename}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
 
 export function clickOutside(el: HTMLElement, accessor: () => () => void) {
   const onClick = (e: MouseEvent) => {

@@ -2,7 +2,7 @@ import { useSearchParams } from "@solidjs/router";
 import { createEffect, createMemo, createResource, createSignal, For, Show } from "solid-js";
 import { list_data_by_range, read_model } from "bbthings_grpc/resource";
 import { resourceServer } from "~/lib/store";
-import { dashboardPath, dateToString, rangeName } from "~/lib/utility";
+import { dashboardPath, dateToString, rangeName, exportToCsv } from "~/lib/utility";
 import { ResourceSchema, DataLogSchema, DataLogViewSchema } from "~/lib/definition";
 import { DataTable, TableColumns, TableRowData } from "~/components/table/DataTable";
 
@@ -105,7 +105,7 @@ export default function DataLogView(props: DataLogViewProps) {
       const configs = model()!.configs;
       const indexes = data_log()!.model_index;
       const cols: TableColumns = {
-        ts: { content: "Timestamp", sortable: true, align: "left" }
+        timestamp: { content: "Timestamp", sortable: true, align: "left" }
       };
       for (const index in configs) {
         const i = parseInt(index);
@@ -131,7 +131,7 @@ export default function DataLogView(props: DataLogViewProps) {
       const dataTable: TableRowData[] = [];
       for (const dataschema of data()!) {
         const dataRow: TableRowData = {
-          ts: dateToString(dataschema.timestamp)
+          timestamp: dateToString(dataschema.timestamp)
         };
         for (const i in dataschema.data) {
           if (indexes.includes(parseInt(i))) {
@@ -328,6 +328,17 @@ export default function DataLogView(props: DataLogViewProps) {
             <div class="w-full xs:px-4 py-2 bg-white dark:bg-gray-900 text-sm overflow-x-auto scrollbar-custom scrollbar-gutter-auto">
               <Show when={columns() && dataTable()}>
                 <DataTable columns={columns()!} data={dataTable()!} />
+              </Show>
+            </div>
+            <div class="flex flex-row items-center justify-center bg-gray-100 dark:bg-gray-800">
+              <Show when={deviceMeta() && dataTable()}>
+                <button 
+                  class="my-1.5 px-2 py-0.5 bg-sky-700 text-gray-100 hover:bg-sky-800 rounded-sm hover:text-white cursor-pointer" 
+                  onclick={() => exportToCsv(deviceMeta()!.name, dataTable()!)}
+                >
+                  <span class="icon-download text-sm align-middle mr-1"></span>
+                  <span class="text-sm">Download</span>
+                </button>
               </Show>
             </div>
           </div>
