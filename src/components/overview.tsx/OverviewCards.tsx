@@ -1,9 +1,11 @@
-import { Show, For, createSignal, createResource, createEffect, createMemo } from "solid-js";
+import { Show, For, Suspense, createSignal, createResource, createEffect } from "solid-js";
 import { useSearchParams } from "@solidjs/router";
 import { read_set, list_model_by_ids, list_data_set_by_range } from "bbthings_grpc/resource";
 import { resourceServer } from "~/lib/store";
 import { dateToString, rangeName } from "~/lib/utility";
 import { ResourceSchema, OverviewCardsSchema } from "~/lib/definition";
+import LoadingData from "../miscellaneous/LoadingData";
+import RefreshData from "../miscellaneous/RefreshData";
 
 interface OverviewCardsProps {
   resource: ResourceSchema;
@@ -15,64 +17,53 @@ export default function OverviewCards(props: OverviewCardsProps) {
   const config = props.overview.config;
   const api_id = props.resource.api_id;
 
-  // construct resource input object using overview schema
-  const input = createMemo(() => {
-    return { overview: props.overview };
-  });
-
   // define time later setting signal
   const [searchParams, setSearchParams] = useSearchParams();
   const initTimeLater= typeof searchParams.later === "string" ? parseInt(searchParams.later) : config.live_range;
   let [timeLater, setTimeLater] = createSignal(initTimeLater);
 
-  // get data set definition based on set id in overview schema
-  const [set] = createResource(input, async (input) => {
-    return await read_set(resourceServer.get(api_id)!, { id: input.overview.set.id })
-      .catch((error) => {
-        console.error(error);
-        return null;
+  // get models from data set definition based on set id in overview schema
+  const [model_config, {refetch: refetchConfig}] = createResource(props.overview, async (overview) => {
+    try {
+      const set = await read_set(resourceServer.get(api_id)!, { id: overview.set.id });
+      const model_ids = set.members.map(member => member.model_id);
+      const models = await list_model_by_ids(resourceServer.get(api_id)!, { ids: model_ids });
+      // get models configuration corresponding data set definition
+      return set.members.flatMap((member) => {
+        const model = models.find(model => model.id == member.model_id);
+        if (model) {
+          return model.configs.filter((_, index) => member.data_index.includes(index));
+        }
+        return [];
       });
-  });
-  // get models corresponding data set definition
-  const [models] = createResource(set, async (set) => {
-    const model_ids = set.members.map(member => member.model_id);
-    return await list_model_by_ids(resourceServer.get(api_id)!, { ids: model_ids })
-      .catch((error) => {
-        console.error(error);
-        return null;
-      });
-  });
-  // get models configuration corresponding data set definition
-  const [model_config] = createResource(models, async (models) => {
-    return set()!.members.flatMap((member) => {
-      const model = models.find(model => model.id == member.model_id);
-      if (model) {
-        return model.configs.filter((_, index) => member.data_index.includes(index));
-      }
-      return [];
-    });
+    } catch (error) {
+      console.error(error);
+    }
+    return [];
   });
 
   // get data set schema based on set id in overview schema and time later setting
-  const [dataset, {refetch}] = createResource(props.overview, async (overview) => {
+  const [dataset, {refetch: refetchData}] = createResource(props.overview, async (overview) => {
     const tEnd = Date.now();
     const tBegin = tEnd - timeLater();
-    return await list_data_set_by_range(resourceServer.get(api_id)!, {
-      set_id: overview.set.id,
-      begin: new Date(tBegin),
-      end: new Date(tEnd),
-      tag: null
-    })
-    .catch((error) => {
+    try {
+      return await list_data_set_by_range(resourceServer.get(api_id)!, {
+        set_id: overview.set.id,
+        begin: new Date(tBegin),
+        end: new Date(tEnd),
+        tag: null
+      });
+    } catch (error) {
       console.error(error);
-      return [];
-    });
+    }
+    return [];
   });
 
+  // create an object containing the latest data set and the model configurations for display on the cards
   function datasetLast() {
     const configs = model_config();
     const datasets = dataset();
-    if (datasets && configs) {
+    if (datasets && configs && configs.length) {
       const dataset = datasets[datasets.length-1];
       const dataLast = [];
       for (const i in configs) {
@@ -101,7 +92,7 @@ export default function OverviewCards(props: OverviewCardsProps) {
       later: selectRange.value
     });
     setTimeLater(parseInt(selectRange.value));
-    refetch();
+    refetchData();
   }
 
   const [rangeList, setRangeList] = createSignal([300000, 900000, 1800000, 3600000]);
@@ -112,7 +103,10 @@ export default function OverviewCards(props: OverviewCardsProps) {
   });
 
   return (
-    <>
+    <Suspense fallback={
+      <LoadingData schema={props.overview} />
+    }>
+
       <div class="w-full xs:px-1 py-1">
         <div class="w-full max-w-3xl xs:rounded-sm border border-slate-200 dark:border-slate-700">
           <div class="w-full flex flex-row items-center justify-between bg-gray-100 dark:bg-gray-800">
@@ -145,39 +139,34 @@ export default function OverviewCards(props: OverviewCardsProps) {
         </div>
       </div>
 
-      <div class="w-full flex flex-row flex-wrap">
-        <Show when={datasetLast()} fallback={
-          <div class="w-full min-w-40 max-w-3xl xs:px-1 py-1">
-            <div class="xs:rounded-sm border border-slate-200 dark:border-slate-700">
-              <div class="flex flex-row justify-center pt-5 pb-4 bg-gray-100 dark:bg-gray-800">
-                <span class="icon-cross text-[1.75rem] text-red-600 mr-2"></span>
-                <span class="text-lg font-medium">Dataset definition not found</span>
-              </div>
-            </div>
-          </div>
-        }>
-          <For each={datasetLast()}>
-          {(item) => (
-            <div class="w-full min-w-40 max-w-[18rem] xs:px-1 py-1">
-              <div class="xs:rounded-sm border border-slate-200 dark:border-slate-700">
-                <div class="flex flex-row justify-center items-center bg-gray-100 dark:bg-gray-800">
-                  <div class="mx-3 my-2 flex flex-row items-center font-medium">
-                    <span class="align-middle text-md font-semibold text-sky-900 dark:text-sky-200">{String(item.scale)}&nbsp;</span>
+      <Show when={datasetLast()} fallback={
+        <RefreshData action={() => { refetchData(); refetchConfig(); }} message="Dataset definition not found" />
+      }>
+
+        <div class="w-full flex flex-row flex-wrap">
+            <For each={datasetLast()}>
+            {(item) => (
+              <div class="w-full min-w-40 max-w-[18rem] xs:px-1 py-1">
+                <div class="xs:rounded-sm border border-slate-200 dark:border-slate-700">
+                  <div class="flex flex-row justify-center items-center bg-gray-100 dark:bg-gray-800">
+                    <div class="mx-3 my-2 flex flex-row items-center font-medium">
+                      <span class="align-middle text-md font-semibold text-sky-900 dark:text-sky-200">{String(item.scale)}&nbsp;</span>
+                    </div>
+                  </div>
+                  <div class="flex flex-row justify-center pt-5 pb-4 bg-white dark:bg-gray-900">
+                    <span class="text-2xl/8 font-semibold">{item.data === null ? "--" : item.precission ? item.data.toFixed(item.precission) : String(item.data)}&nbsp;</span>
+                    <span class="text-sm/8">&nbsp;{String(item.symbol)}</span>
+                  </div>
+                  <div class="flex flex-row justify-center py-2 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-gray-900">
+                    <span class="text-sm">{item.timestamp}&nbsp;</span>
                   </div>
                 </div>
-                <div class="flex flex-row justify-center pt-5 pb-4 bg-white dark:bg-gray-900">
-                  <span class="text-2xl/8 font-semibold">{item.data === null ? "--" : item.precission ? item.data.toFixed(item.precission) : String(item.data)}&nbsp;</span>
-                  <span class="text-sm/8">&nbsp;{String(item.symbol)}</span>
-                </div>
-                <div class="flex flex-row justify-center py-2 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-gray-900">
-                  <span class="text-sm">{item.timestamp}&nbsp;</span>
-                </div>
               </div>
-            </div>
-          )}
-          </For>
-        </Show>
-      </div>
-    </>
+            )}
+            </For>
+        </div>
+
+      </Show>
+    </Suspense>
   );
 }

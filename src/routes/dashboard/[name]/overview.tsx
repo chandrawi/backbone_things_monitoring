@@ -1,5 +1,5 @@
 import { onMount, Match, Show, Switch } from "solid-js";
-import { BasicSchema, OverviewCardsSchema } from "~/lib/definition";
+import { OverviewSchema, OverviewCardsSchema } from "~/lib/definition";
 import { dashboardPath } from "~/lib/utility";
 import { useDashboard } from "~/context/DashboardContext";
 import { useResource } from "~/context/ResourceContext";
@@ -16,10 +16,17 @@ export default function Overview() {
     setMenuPath([path.name, path.menu]);
   });
 
+  // get component name from dashboard schema
+  const component = () => {
+    const s = schema() as OverviewSchema | undefined;
+    return s?.name;
+  };
+
   return (
     <Show when={resource() && schema()}>
+      <div class="w-full h-0.5"></div>
       <Switch>
-        <Match when={(schema() as BasicSchema)?.name === "overview_cards"}>
+        <Match when={component() === "overview_cards"}>
           <OverviewCards resource={resource()!} overview={(schema() as OverviewCardsSchema)} />
         </Match>
       </Switch>

@@ -1,10 +1,12 @@
 import { useSearchParams } from "@solidjs/router";
-import { createEffect, createMemo, createResource, createSignal, For, Show } from "solid-js";
+import { createEffect, createMemo, createResource, createSignal, For, Show, Suspense } from "solid-js";
 import { list_data_by_range, read_model } from "bbthings_grpc/resource";
 import { resourceServer } from "~/lib/store";
 import { dashboardPath, dateToString, rangeName, exportToCsv } from "~/lib/utility";
 import { ResourceSchema, DataLogSchema, DataLogViewSchema } from "~/lib/definition";
 import { DataTable, TableColumns, TableRowData } from "~/components/table/DataTable";
+import LoadingData from "../miscellaneous/LoadingData";
+import RefreshData from "../miscellaneous/RefreshData";
 
 interface DataLogViewProps {
   resource: ResourceSchema;
@@ -59,50 +61,48 @@ export default function DataLogView(props: DataLogViewProps) {
   let [timeEnd, setTimeEnd] = createSignal(initTimeEnd);
 
   // get model definition based on model id in data_log schema
-  const [model] = createResource(input, async (input) => {
-    return await read_model(resourceServer.get(api_id)!, { id: input.data_log.model_id })
-      .catch((error) => {
-        console.error(error);
-        return null;
-      });
+  const [model_config, {refetch: refetchConfig}] = createResource(input, async (input) => {
+    try {
+      const model = await read_model(resourceServer.get(api_id)!, { id: input.data_log.model_id });
+      return model.configs;
+    } catch (error) {
+      console.error(error);
+    }
   });
 
   // get data schema based on device id in data_log schema and time mode setting
-  const [data, {refetch} ] = createResource(input, async (input) => {
+  const [data, {refetch: refetchData} ] = createResource(input, async (input) => {
     const device_id = input.data_log.devices.find((item) => item.name == input.path.item)?.id;
-    if (timeMode() == "live") {
-      const tLater = new Date(Date.now() - timeLater());
-      return await list_data_by_range(resourceServer.get(api_id)!, {
-        device_id: device_id ? device_id : "",
-        model_id: input.data_log.model_id,
-        begin: tLater,
-        end: new Date(Date.now()),
-        tag: null
-      })
-      .catch((error) => {
-        console.error(error);
-        return [];
-      });
-    }
-    else if (timeMode() == "history") {
-      return await list_data_by_range(resourceServer.get(api_id)!, {
-        device_id: device_id ? device_id : "",
-        model_id: input.data_log.model_id,
-        begin: timeBegin(),
-        end: timeEnd(),
-        tag: null
-      })
-      .catch((error) => {
-        console.error(error);
-        return [];
-      });
+    try {
+      if (timeMode() == "live") {
+        const tLater = new Date(Date.now() - timeLater());
+        return await list_data_by_range(resourceServer.get(api_id)!, {
+          device_id: device_id ? device_id : "",
+          model_id: input.data_log.model_id,
+          begin: tLater,
+          end: new Date(Date.now()),
+          tag: null
+        });
+      }
+      else if (timeMode() == "history") {
+        return await list_data_by_range(resourceServer.get(api_id)!, {
+          device_id: device_id ? device_id : "",
+          model_id: input.data_log.model_id,
+          begin: timeBegin(),
+          end: timeEnd(),
+          tag: null
+        });
+      }
+    } catch (error) {
+      console.error(error);
     }
     return [];
   });
 
+  // create an object to be used as the table header
   function columns(): TableColumns | undefined {
-    if (data_log() && model()) {
-      const configs = model()!.configs;
+    if (data_log() && model_config()) {
+      const configs = model_config()!;
       const indexes = data_log()!.model_index;
       const cols: TableColumns = {
         timestamp: { content: "Timestamp", sortable: true, align: "left" }
@@ -123,10 +123,10 @@ export default function DataLogView(props: DataLogViewProps) {
       return cols;
     }
   }
-
+  // create an object to be used as the table rows
   function dataTable(): TableRowData[] | undefined {
-    if (data_log() && model() && data()) {
-      const configs = model()!.configs;
+    if (data_log() && model_config() && data()) {
+      const configs = model_config()!;
       const indexes = data_log()!.model_index;
       const dataTable: TableRowData[] = [];
       for (const dataschema of data()!) {
@@ -146,9 +146,10 @@ export default function DataLogView(props: DataLogViewProps) {
     }
   }
 
+  // create a chart metadata array
   function itemCharts() {
-    if (data_log() && model()) {
-      const configs = model()!.configs;
+    if (data_log() && model_config()) {
+      const configs = model_config();
       const indexes = data_log()!.model_index;
       const items = [];
       for (const index in configs) {
@@ -185,7 +186,7 @@ export default function DataLogView(props: DataLogViewProps) {
         end: null
       });
       setTimeLater(parseInt(selectRange.value));
-      refetch();
+      refetchData();
     }
     else if (selectTimeMode.value == "history") {
       setSearchParams({
@@ -198,7 +199,7 @@ export default function DataLogView(props: DataLogViewProps) {
         if (new Date(datetimeBegin.value) < new Date()) setTimeBegin(new Date(datetimeBegin.value));
         if (new Date(datetimeEnd.value) < new Date()) setTimeEnd(new Date(datetimeEnd.value));
       }
-      refetch();
+      refetchData();
     }
   }
 
@@ -223,13 +224,16 @@ export default function DataLogView(props: DataLogViewProps) {
   });
 
   return (
-    <>
+    <Suspense fallback={
+      <LoadingData schema={data_log()} />
+    }>
+
       <div class="w-full xs:px-1 py-1">
         <div class="w-full max-w-3xl xs:rounded-sm border border-slate-200 dark:border-slate-700">
           <div class="w-full flex flex-row items-center justify-between bg-gray-100 dark:bg-gray-800">
             <div class="mx-2 my-1.5 flex flex-row items-center font-semibold">
-              <span class={(data_log()?.icon ? data_log()?.icon : "icon-list_square") + " text-[1.5rem] align-middle"}></span>
-              <span class="ml-1 align-middle">{data_log()?.name}&nbsp;</span>
+              <span class={(data_log() ? data_log()?.icon : "icon-list_square") + " text-[1.5rem] align-middle"}></span>
+              <span class="ml-1 align-middle">{data_log()?.text}&nbsp;</span>
             </div>
             <div class="mx-3 my-auto flex flex-row text-sm">
               <button class={"px-2 py-0.5 text-gray-100 rounded-l-sm " 
@@ -294,56 +298,62 @@ export default function DataLogView(props: DataLogViewProps) {
         </div>
       </div>
 
-      <Show when={viewMode() == "graph"}>
-        <div class="w-full flex flex-row flex-wrap">
-          <For each={itemCharts()}>
-          {(item) => (
-            <div class="w-full xl:w-1/2 xs:px-1 py-1 max-w-xl">
-              <div class="xs:rounded-sm border border-slate-200 dark:border-slate-700">
-                <div class="flex flex-row items-center bg-gray-100 dark:bg-gray-800">
-                  <div class="mx-3 my-1.5 flex flex-row items-center font-medium">
-                    <span class="align-middle text-sm">{deviceMeta()?.name}&nbsp;</span>
-                    <span class="icon-chevron_right align-middle text-[0.875rem]"></span>
-                    <span class="align-middle text-sm">&nbsp;{item.content}</span>
+      <Show when={model_config()} fallback={
+        <RefreshData action={() => { refetchData(); refetchConfig(); }} message="Data definition not found" />
+      }>
+
+        <Show when={viewMode() == "graph"}>
+          <div class="w-full flex flex-row flex-wrap">
+            <For each={itemCharts()}>
+            {(item) => (
+              <div class="w-full xl:w-1/2 xs:px-1 py-1 max-w-xl">
+                <div class="xs:rounded-sm border border-slate-200 dark:border-slate-700">
+                  <div class="flex flex-row items-center bg-gray-100 dark:bg-gray-800">
+                    <div class="mx-3 my-1.5 flex flex-row items-center font-medium">
+                      <span class="align-middle text-sm">{deviceMeta()?.name}&nbsp;</span>
+                      <span class="icon-chevron_right align-middle text-[0.875rem]"></span>
+                      <span class="align-middle text-sm">&nbsp;{item.content}</span>
+                    </div>
+                  </div>
+                  <div class="p-3 bg-white dark:bg-gray-900">
+                    <canvas class="w-full aspect-video"></canvas>
                   </div>
                 </div>
-                <div class="p-3 bg-white dark:bg-gray-900">
-                  <canvas class="w-full aspect-video"></canvas>
+              </div>
+            )}
+            </For>
+          </div>
+        </Show>
+
+        <Show when={viewMode() == "table"}>
+          <div class="w-full xs:px-1 py-1 overflow-hidden">
+            <div class="w-full max-w-3xl xs:rounded-sm border border-slate-200 dark:border-slate-700">
+              <div class="flex flex-row items-center bg-gray-100 dark:bg-gray-800">
+                <div class="mx-3 my-1.5 flex flex-row items-center font-medium">
+                  <span class="align-middle text-sm leading-6">{deviceMeta()?.name}&nbsp;</span>
                 </div>
               </div>
-            </div>
-          )}
-          </For>
-        </div>
-      </Show>
-
-      <Show when={viewMode() == "table"}>
-        <div class="w-full xs:px-1 py-1 overflow-hidden">
-          <div class="w-full max-w-3xl xs:rounded-sm border border-slate-200 dark:border-slate-700">
-            <div class="flex flex-row items-center bg-gray-100 dark:bg-gray-800">
-              <div class="mx-3 my-1.5 flex flex-row items-center font-medium">
-                <span class="align-middle text-sm leading-6">{deviceMeta()?.name}&nbsp;</span>
+              <div class="w-full xs:px-4 py-2 bg-white dark:bg-gray-900 text-sm overflow-x-auto scrollbar-custom scrollbar-gutter-auto">
+                <Show when={columns() && dataTable()}>
+                  <DataTable columns={columns()!} data={dataTable()!} />
+                </Show>
+              </div>
+              <div class="flex flex-row items-center justify-center bg-gray-100 dark:bg-gray-800">
+                <Show when={deviceMeta() && dataTable()}>
+                  <button 
+                    class="my-1.5 px-2 py-0.5 bg-sky-700 text-gray-100 hover:bg-sky-800 rounded-sm hover:text-white cursor-pointer" 
+                    onclick={() => exportToCsv(deviceMeta()!.name, dataTable()!)}
+                  >
+                    <span class="icon-download text-sm align-middle mr-1"></span>
+                    <span class="text-sm">Download</span>
+                  </button>
+                </Show>
               </div>
             </div>
-            <div class="w-full xs:px-4 py-2 bg-white dark:bg-gray-900 text-sm overflow-x-auto scrollbar-custom scrollbar-gutter-auto">
-              <Show when={columns() && dataTable()}>
-                <DataTable columns={columns()!} data={dataTable()!} />
-              </Show>
-            </div>
-            <div class="flex flex-row items-center justify-center bg-gray-100 dark:bg-gray-800">
-              <Show when={deviceMeta() && dataTable()}>
-                <button 
-                  class="my-1.5 px-2 py-0.5 bg-sky-700 text-gray-100 hover:bg-sky-800 rounded-sm hover:text-white cursor-pointer" 
-                  onclick={() => exportToCsv(deviceMeta()!.name, dataTable()!)}
-                >
-                  <span class="icon-download text-sm align-middle mr-1"></span>
-                  <span class="text-sm">Download</span>
-                </button>
-              </Show>
-            </div>
           </div>
-        </div>
+        </Show>
+
       </Show>
-    </>
+    </Suspense>
   );
 }

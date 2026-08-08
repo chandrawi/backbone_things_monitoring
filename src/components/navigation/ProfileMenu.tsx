@@ -1,15 +1,17 @@
-import { Show, createResource } from "solid-js";
+import { Show, createResource, Suspense } from "solid-js";
 import { read_user } from "bbthings_grpc/auth";
 import { userId, authServer } from "~/lib/store";
 
 export default function ProfileMenu() {
 
-  const [userData] = createResource(userId(), async (user_id) => {
-    return read_user(authServer.get()!, { id: user_id })
-      .catch((error) => {
-        console.error(error);
-        return null;
-      });
+  // get user data using stored user_id
+  const [userData] = createResource(userId, async (user_id) => {
+    try {
+      return await read_user(authServer.get()!, { id: user_id });
+    } catch (error) {
+      console.error(error);
+    }
+    return null;
   });
 
   return (
@@ -32,7 +34,9 @@ export default function ProfileMenu() {
       <div class="dropdown h-full xl:pl-2.5 mr-3 xl:border-l border-slate-200 dark:border-slate-700">
         <button tabindex="0" class="h-full flex flex-row items-center">
           <span class="w-full pr-1 hidden xl:inline font-medium">
-            {userData() ? userData()?.name : "Username"}
+            <Suspense fallback={"Username"}>
+              {userData() ? userData()?.name : "Username"}
+            </Suspense>
           </span>
           <div class="w-9 h-9 relative rounded-full border-2 border-sky-700 flex items-center justify-center">
             <span class="icon-user_circle text-[2.25rem] text-sky-700"></span>
@@ -45,7 +49,9 @@ export default function ProfileMenu() {
         <div class="w-full flex flex-row justify-end">
           <div class="dropdown-content w-44 -mr-1 pb-0.5 fixed bg-white shadow-md-res shadow-slate-200 rounded-b-sm dark:bg-gray-800 dark:shadow-slate-950">
             <span class="w-full h-8 px-4 flex xl:hidden flex-row items-center font-medium border-t border-slate-200 dark:border-slate-700">
-              {userData() ? userData()?.name : "Username"}
+              <Suspense fallback={"Username"}>
+                {userData() ? userData()?.name : "Username"}
+              </Suspense>
             </span>
             <a class="w-full h-8 px-3 flex flex-row items-center border-t border-slate-200 hover:text-sky-800 dark:border-slate-700 dark:hover:text-sky-300">
               <span class="icon-user text-[1rem] w-5 ml-0.5"></span>
