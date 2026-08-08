@@ -181,3 +181,9 @@
 .icon-download:before {
   content: "\e933";
 }
+.icon-refresh:before {
+  content: "\e934";
+}
+.icon-back:before {
+  content: "\e935";
+}
