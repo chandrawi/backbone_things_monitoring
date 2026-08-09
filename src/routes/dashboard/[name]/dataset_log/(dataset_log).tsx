@@ -1,7 +1,7 @@
 import { Match, onMount, Show, Switch } from "solid-js";
 import { DataLogSchema } from "~/lib/definition";
 import { dashboardPath, breadcrumbDataLog } from "~/lib/utility";
-import { useResource } from "~/context/ResourceContext";
+import { useBbthings } from "~/context/BbthingsContext";
 import { useDashboard } from "~/context/DashboardContext";
 import Breadcrumb from "~/components/navigation/Breadcrumb";
 import DataLogList from "~/components/data_log/DataLogList";
@@ -9,13 +9,12 @@ import DataLogView from "~/components/data_log/DataLogView";
 import DataSetLogView from "~/components/data_log/DatasetLogView";
 
 export default function DatasetLog() {
-  // get resource and dashboard schema context
-  const { resource, setName } = useResource();
+  // update resource server object on bbthings context and dashboard schema using dashboard path
+  const { setResourceName } = useBbthings();
   const { schema, menuPath, setMenuPath } = useDashboard();
-  // update resource and dashboard schema using dashboard path
   const path = dashboardPath();
   onMount(() => {
-    setName(path.name);
+    setResourceName(path.name);
     const p = menuPath();
     if (p[0] != path.name || p[1] != path.menu) {
       setMenuPath([path.name, path.menu]);
@@ -42,13 +41,13 @@ export default function DatasetLog() {
       <Show when={mode() == "single"} fallback={
         <DataLogList data_log={schema()! as DataLogSchema} />
       }>
-        <Show when={resource() && component()}>
+        <Show when={component()}>
           <Switch>
             <Match when={component() == "devices"}>
-              <DataLogView resource={resource()!} data_log={schema()! as DataLogSchema} />
+              <DataLogView data_log={schema()! as DataLogSchema} />
             </Match>
             <Match when={component() == "sets"}>
-              <DataSetLogView resource={resource()!} data_log={schema()! as DataLogSchema} />
+              <DataSetLogView data_log={schema()! as DataLogSchema} />
             </Match>
           </Switch>
         </Show>

@@ -1,20 +1,19 @@
 import { useSearchParams } from "@solidjs/router";
 import { createEffect, createMemo, createResource, createSignal, For, Show, Suspense } from "solid-js";
 import { list_data_set_by_range, list_model_by_ids, read_set } from "bbthings_grpc/resource";
-import { resourceServer } from "~/lib/store";
 import { dashboardPath, dateToString, rangeName, exportToCsv } from "~/lib/utility";
-import { ResourceSchema, DataLogSchema, DatasetLogViewSchema } from "~/lib/definition";
+import { DataLogSchema, DatasetLogViewSchema } from "~/lib/definition";
+import { useBbthings } from "~/context/BbthingsContext";
 import { DataTable, TableColumns, TableRowData } from "~/components/table/DataTable";
 import LoadingData from "../miscellaneous/LoadingData";
 import RefreshData from "../miscellaneous/RefreshData";
 
 interface DatasetLogViewProps {
-  resource: ResourceSchema;
   data_log: DataLogSchema;
 };
 
 export default function DataSetLogView(props: DatasetLogViewProps) {
-  const api_id = props.resource.api_id;
+  const { resourceServer } = useBbthings();
 
   // take a data_log child schema matched with submenu path or first child for single mode
   const data_log = createMemo(() => {
@@ -64,9 +63,9 @@ export default function DataSetLogView(props: DatasetLogViewProps) {
   const [model_config, {refetch: refetchConfig}] = createResource(input, async (input) => {
     try {
       const set_id = input.data_log.sets?.find((item) => item.name == input.path.item)?.id;
-      const set = await read_set(resourceServer.get(api_id)!, { id: set_id ? set_id : "" });
+      const set = await read_set(resourceServer(), { id: set_id ? set_id : "" });
       const model_ids = set.members.map(member => member.model_id);
-      const models = await list_model_by_ids(resourceServer.get(api_id)!, { ids: model_ids });
+      const models = await list_model_by_ids(resourceServer(), { ids: model_ids });
       // get models configuration corresponding data set definition
       return set.members.flatMap((member) => {
         const model = models.find(model => model.id == member.model_id);
@@ -86,7 +85,7 @@ export default function DataSetLogView(props: DatasetLogViewProps) {
     try {
       if (timeMode() == "live") {
         const tLater = new Date(Date.now() - timeLater());
-        return await list_data_set_by_range(resourceServer.get(api_id)!, {
+        return await list_data_set_by_range(resourceServer(), {
           set_id: set_id ? set_id : "",
           begin: tLater,
           end: new Date(Date.now()),
@@ -94,7 +93,7 @@ export default function DataSetLogView(props: DatasetLogViewProps) {
         });
       }
       else if (timeMode() == "history") {
-        return await list_data_set_by_range(resourceServer.get(api_id)!, {
+        return await list_data_set_by_range(resourceServer(), {
           set_id: set_id ? set_id : "",
           begin: timeBegin(),
           end: timeEnd(),

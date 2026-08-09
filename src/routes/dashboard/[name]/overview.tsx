@@ -1,18 +1,17 @@
 import { onMount, Match, Show, Switch } from "solid-js";
 import { OverviewSchema, OverviewCardsSchema } from "~/lib/definition";
 import { dashboardPath } from "~/lib/utility";
+import { useBbthings } from "~/context/BbthingsContext";
 import { useDashboard } from "~/context/DashboardContext";
-import { useResource } from "~/context/ResourceContext";
 import OverviewCards from "~/components/overview.tsx/OverviewCards";
 
 export default function Overview() {
-  // get resource and dashboard schema context
-  const { resource, setName } = useResource();
+  // update resource server object on bbthings context and dashboard schema using dashboard path
+  const { setResourceName } = useBbthings();
   const { schema, setMenuPath } = useDashboard();
-  // update resource and dashboard schema using dashboard path
   const path = dashboardPath();
   onMount(() => {
-    setName(path.name);
+    setResourceName(path.name);
     setMenuPath([path.name, path.menu]);
   });
 
@@ -23,11 +22,11 @@ export default function Overview() {
   };
 
   return (
-    <Show when={resource() && schema()}>
+    <Show when={schema()}>
       <div class="w-full h-0.5"></div>
       <Switch>
         <Match when={component() === "overview_cards"}>
-          <OverviewCards resource={resource()!} overview={(schema() as OverviewCardsSchema)} />
+          <OverviewCards overview={(schema() as OverviewCardsSchema)} />
         </Match>
       </Switch>
     </Show>

@@ -1,10 +1,13 @@
 import { createSignal } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { user_login } from "bbthings_grpc/auth";
-import { authServer, resourceServer, setUserId } from "~/lib/store";
+import { setUserId } from "~/lib/store";
+import { useBbthings } from "~/context/BbthingsContext";
 
 export default function Login() {
   const navigate = useNavigate();
+
+  const { authServer, setAuthToken, setResourceToken } = useBbthings();
 
   const [errorMessage, setErrorMessage] = createSignal("");
   let inputUsername!: HTMLInputElement;
@@ -22,15 +25,14 @@ export default function Login() {
       return;
     }
     // login using input username and password then save tokens and user id response
-    user_login(authServer.get()!, {
+    user_login(authServer(), {
       username: inputUsername.value,
       password: inputPassword.value
     }).then((login) => {
-      authServer.setToken(login.auth_token);
+      setAuthToken(login.auth_token);
       setUserId(String(login.user_id));
       for (const access of login.access_tokens) {
-        resourceServer.setToken(String(access.api_id), access.access_token);
-        resourceServer.setRefreshToken(String(access.api_id), access.refresh_token);
+        setResourceToken(String(access.api_id), access.access_token, access.refresh_token);
       }
       navigate("/dashboard", {replace:true});
     }).catch((error) => {

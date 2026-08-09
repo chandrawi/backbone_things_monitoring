@@ -6,7 +6,17 @@ export const DEFAULT_MENU = "overview";
 export const DefaultComponent = lazy(() => import("~/routes/dashboard/[name]/overview"));
 
 function deleteCookie(name: string) {
-  document.cookie = name + "=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict";
+  document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Strict";
+}
+
+function deleteAllCookie(name_prefix: string) {
+  const cookies = document.cookie.split(';');
+  cookies.forEach(cookie => {
+    const cookieName = cookie.trim().split('=')[0];
+    if (cookieName.startsWith(name_prefix)) {
+      document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Strict`;
+    }
+});
 }
 
 function createCookie(name: string, value: string | null, seconds: number) {
@@ -74,114 +84,41 @@ export const [userId, setUserId] = createRoot(() => {
   return [userId, setUserId]
 });
 
-type AuthServer = { 
-  address: string | null; 
-  auth_token: string | null;
-  get(): { address: string; auth_token: string } | null;
-  setAddress(address: string): void;
-  setToken(token: string): void;
-  unsetToken(): void;
-};
-
-export const authServer: AuthServer = {
-  address: null,
-  auth_token: null,
-
-  get() {
-    const address = readCookie("auth_address");
-    const token = readCookie("auth_token");
-    if (address) this.address = address;
-    if (token) this.auth_token = token;
-    if (address) {
-      return { address: address, auth_token: token ? token : "" };
-    }
-    return null;
+export const bbthingsCookie = {
+  readUserId() {
+    return readCookie("user_id");
   },
-
-  setAddress(address: string) {
-    this.address = address;
-    createCookie("auth_address", address, EXPIRE);
+  createUserId(user_id: string) {
+    createCookie("user_id", user_id, EXPIRE);
   },
-
-  setToken(token: string) {
-    this.auth_token = token;
+  deleteUserId() {
+    deleteCookie("user_id");
+  },
+  readAuthToken() {
+    return readCookie("auth_token");
+  },
+  createAuthToken(token: string) {
     createCookie("auth_token", token, EXPIRE);
   },
-
-  unsetToken() {
+  deleteAuthToken() {
     deleteCookie("auth_token");
-  }
-};
-
-type ResourceServer = {
-  resources: Record<string, { address: string | null, access_token:string | null, refresh_token: string | null }>;
-  get(id: string): { address: string, access_token:string, refresh_token: string } | null;
-  setAddress(id: string, address: string | null): void;
-  setToken(id: string, token: string | null): void;
-  setRefreshToken(id: string, refresh_token: string | null): void;
-  getApiIds(): string[];
-  unsetToken(id: string): void;
-};
-
-export const resourceServer: ResourceServer = {
-  resources: {},
-
-  get(id: string) {
-    if (!(id in this.resources)) {
-      this.resources[id] = { address: null, access_token: null, refresh_token: null };
-    }
-    const address = readCookie("resource_address_" + id);
-    const accessToken = readCookie("resource_token_" + id);
-    const refreshToken = readCookie("resource_refresh_" + id);
-
-    if (address && !this.resources[id].address) this.resources[id].address = address;
-    if (accessToken && !this.resources[id].access_token) this.resources[id].access_token = accessToken;
-    if (refreshToken && !this.resources[id].refresh_token) this.resources[id].refresh_token = refreshToken;
-
-    if (this.resources[id].address && this.resources[id].access_token && this.resources[id].refresh_token) {
-      return { 
-        address: this.resources[id].address,
-        access_token: this.resources[id].access_token,
-        refresh_token: this.resources[id].refresh_token
-       };
-    }
-    return null;
   },
-
-  setAddress(id: string, address: string | null) {
-    if (!(id in this.resources)) {
-      this.resources[id] = { address: null, access_token: null, refresh_token: null };
-    }
-    this.resources[id].address = address;
-    createCookie("resource_address_" + id, address, EXPIRE);
+  readAccessToken(api_id: string) {
+    return readCookie("access_token_" + api_id);
   },
-
-  setToken(id: string, token: string | null) {
-    if (!(id in this.resources)) {
-      this.resources[id] = { address: null, access_token: null, refresh_token: null };
-    }
-    this.resources[id].access_token = token;
-    createCookie("resource_token_" + id, token, EXPIRE);
+  createAccessToken(api_id: string, token: string) {
+    createCookie("access_token_" + api_id, token, EXPIRE);
   },
-
-  setRefreshToken(id: string, refresh_token: string | null) {
-    if (!(id in this.resources)) {
-      this.resources[id] = { address: null, access_token: null, refresh_token: null };
-    }
-    this.resources[id].refresh_token = refresh_token;
-    createCookie("resource_refresh_" + id, refresh_token, EXPIRE);
+  deleteAccessToken() {
+    deleteAllCookie("access_token_");
   },
-
-  getApiIds(): string[] {
-    return Object.keys(this.resources);
+  readRefreshToken(api_id: string) {
+    return readCookie("refresh_token_" + api_id);
   },
-
-  unsetToken(id: string) {
-    if (id in this.resources) {
-      this.resources[id].access_token = null;
-      this.resources[id].refresh_token = null;
-    }
-    deleteCookie("resource_token_" + id);
-    deleteCookie("resource_refresh_" + id);
-  }
-};
+  createRefreshToken(api_id: string, token: string) {
+    createCookie("refresh_token_" + api_id, token, EXPIRE);
+  },
+  deleteRefreshToken() {
+    deleteAllCookie("refresh_token_");
+  },
+}

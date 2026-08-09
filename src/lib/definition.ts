@@ -2,9 +2,26 @@ export type AuthSchema = {
   address: string;
 };
 
+export type AuthServer = {
+  address: string;
+  auth_token: string;
+};
+
 export type ResourceSchema = {
   address: string;
-  api_id: string
+  api_id: string;
+};
+
+export type ResourceServer = {
+  address: string;
+  access_token: string;
+  refresh_token: string;
+};
+
+export type TokenMap = {
+  api_id: string;
+  access_token: string;
+  refresh_token: string;
 };
 
 export type DashboardPath = {

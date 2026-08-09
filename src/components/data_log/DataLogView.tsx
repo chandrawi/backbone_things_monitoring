@@ -1,20 +1,19 @@
 import { useSearchParams } from "@solidjs/router";
 import { createEffect, createMemo, createResource, createSignal, For, Show, Suspense } from "solid-js";
 import { list_data_by_range, read_model } from "bbthings_grpc/resource";
-import { resourceServer } from "~/lib/store";
 import { dashboardPath, dateToString, rangeName, exportToCsv } from "~/lib/utility";
-import { ResourceSchema, DataLogSchema, DataLogViewSchema } from "~/lib/definition";
+import { DataLogSchema, DataLogViewSchema } from "~/lib/definition";
+import { useBbthings } from "~/context/BbthingsContext";
 import { DataTable, TableColumns, TableRowData } from "~/components/table/DataTable";
 import LoadingData from "../miscellaneous/LoadingData";
 import RefreshData from "../miscellaneous/RefreshData";
 
 interface DataLogViewProps {
-  resource: ResourceSchema;
   data_log: DataLogSchema;
 };
 
 export default function DataLogView(props: DataLogViewProps) {
-  const api_id = props.resource.api_id;
+  const { resourceServer } = useBbthings();
 
   // take a data_log child schema matched with submenu path or first child for single mode
   const data_log = createMemo(() => {
@@ -63,7 +62,7 @@ export default function DataLogView(props: DataLogViewProps) {
   // get model definition based on model id in data_log schema
   const [model_config, {refetch: refetchConfig}] = createResource(input, async (input) => {
     try {
-      const model = await read_model(resourceServer.get(api_id)!, { id: input.data_log.model_id });
+      const model = await read_model(resourceServer(), { id: input.data_log.model_id });
       return model.configs;
     } catch (error) {
       console.error(error);
@@ -76,7 +75,7 @@ export default function DataLogView(props: DataLogViewProps) {
     try {
       if (timeMode() == "live") {
         const tLater = new Date(Date.now() - timeLater());
-        return await list_data_by_range(resourceServer.get(api_id)!, {
+        return await list_data_by_range(resourceServer(), {
           device_id: device_id ? device_id : "",
           model_id: input.data_log.model_id,
           begin: tLater,
@@ -85,7 +84,7 @@ export default function DataLogView(props: DataLogViewProps) {
         });
       }
       else if (timeMode() == "history") {
-        return await list_data_by_range(resourceServer.get(api_id)!, {
+        return await list_data_by_range(resourceServer(), {
           device_id: device_id ? device_id : "",
           model_id: input.data_log.model_id,
           begin: timeBegin(),
