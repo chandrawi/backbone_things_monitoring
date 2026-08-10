@@ -15,11 +15,11 @@ export default function Logout() {
   }).then(() => {
     unsetAuthToken();
     unsetResourceToken();
-    setUserId("");
+    setUserId(null);
     navigate("/auth/login", {replace:true});
   }).catch((error) => {
     console.error(error);
-    setUserId("");
+    setUserId(null);
     navigate("/auth/login", {replace:true});
   });
 

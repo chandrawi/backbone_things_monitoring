@@ -1,6 +1,7 @@
 import { useSearchParams } from "@solidjs/router";
 import { createEffect, createMemo, createResource, createSignal, For, Show, Suspense } from "solid-js";
 import { list_data_set_by_range, list_model_by_ids, read_set } from "bbthings_grpc/resource";
+import { ERROR_UNAUTHENTICATED, setUserId } from "~/lib/store";
 import { dashboardPath, dateToString, rangeName, exportToCsv } from "~/lib/utility";
 import { DataLogSchema, DatasetLogViewSchema } from "~/lib/definition";
 import { useBbthings } from "~/context/BbthingsContext";
@@ -74,8 +75,9 @@ export default function DataSetLogView(props: DatasetLogViewProps) {
         }
         return [];
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      if (error.code === ERROR_UNAUTHENTICATED) setUserId(null);
     }
   });
 
@@ -100,8 +102,9 @@ export default function DataSetLogView(props: DatasetLogViewProps) {
           tag: null
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      if (error.code === ERROR_UNAUTHENTICATED) setUserId(null);
     }
     return [];
   });

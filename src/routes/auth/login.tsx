@@ -45,8 +45,8 @@ export default function Login() {
           break;
         default:
           setErrorMessage("Server error");
-          console.error(error);
       }
+      console.error(error);
     });
   }
 
