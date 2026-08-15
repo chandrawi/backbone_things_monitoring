@@ -1,6 +1,7 @@
 import { createSignal, createResource, createMemo, createContext, useContext, JSX, Accessor, Setter } from "solid-js";
 import { AuthSchema, AuthServer, ResourceSchema, ResourceServer, TokenMap } from "~/lib/definition";
-import { bbthingsCookie } from "~/lib/store";
+import { bbthingsCookie, LOCAL_FLAG } from "~/lib/store";
+import { replaceHostname } from "~/lib/utility";
 
 interface BbthingsContextType {
   authServer: Accessor<AuthServer>;
@@ -20,21 +21,31 @@ export function BbthingsProvider(props: {children: JSX.Element}) {
   const [resourceName, setResourceName] = createSignal<string>("");
 
   // get an auth schema
-  const [auth] = createResource<AuthSchema>(async (name) => {
+  const [auth] = createResource(async () => {
     try {
       const response = await fetch(`/schema/auth.json`);
-      return await response.json();
+      const auth: AuthSchema = await response.json();
+      // replace address hostname with window hostname for local application
+      if (LOCAL_FLAG && typeof window !== "undefined") {
+        auth.address = replaceHostname(auth.address, window.location.hostname);
+      }
+      return auth;
     } catch(error) {
       console.error(error);
     }
   });
 
   // get a resource schema based on the dashboard name
-  const [resource] = createResource<ResourceSchema, string>(resourceName, async (name) => {
+  const [resource] = createResource(resourceName, async (name) => {
     if (name === "") return;
     try {
       const response = await fetch(`/schema/dashboard/${name}/resource.json`);
-      return await response.json();
+      const resource: ResourceSchema = await response.json();
+      // replace address hostname with window hostname for local application
+      if (LOCAL_FLAG && typeof window !== "undefined") {
+        resource.address = replaceHostname(resource.address, window.location.hostname);
+      }
+      return resource;
     } catch(error) {
       console.error(error);
     }

@@ -13,6 +13,17 @@ export function dashboardPath(): DashboardPath {
   return { name: name, menu: menu, submenu: submenu, item: item };
 }
 
+export function replaceHostname(url: string, hostname: string): string {
+  try {
+    const urlObj = new URL(url);
+    urlObj.hostname = hostname;
+    return urlObj.href;
+  } catch (error) {
+    console.error(error);
+  }
+  return url;
+}
+
 function zeropad(input: string | number, num: number): string {
   let output: string = String(input);
   for (let i: number = output.length; i < num; i++) {
