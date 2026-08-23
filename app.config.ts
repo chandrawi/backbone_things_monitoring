@@ -26,6 +26,9 @@ export default defineConfig({
             if (id.includes("node_modules/bbthings_grpc")) {
               return "vendor-bbthings";
             }
+            if (id.includes("node_modules/echarts")) {
+              return "vendor-echarts";
+            }
           }
         }
       }
