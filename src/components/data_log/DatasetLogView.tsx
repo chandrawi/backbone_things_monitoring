@@ -6,6 +6,7 @@ import { dashboardPath, dateToString, rangeName, exportToCsv } from "~/lib/utili
 import { DataLogSchema, DatasetLogViewSchema } from "~/lib/definition";
 import { useBbthings } from "~/context/BbthingsContext";
 import { DataTable, TableColumns, TableRowData } from "~/components/table/DataTable";
+import TimeChart from "../charts/TimeChart";
 import LoadingData from "../miscellaneous/LoadingData";
 import RefreshData from "../miscellaneous/RefreshData";
 
@@ -181,6 +182,24 @@ export default function DataSetLogView(props: DatasetLogViewProps) {
     return [];
   }
 
+  // create charts data
+  function dataCharts(index: number) {
+    if (data_log() && model_config() && data()) {
+      const configs = model_config()!;
+      const indexes = [...Array(configs.length).keys()];
+      const dataCharts: [number, number][] = [];
+      for (const dataschema of data()!) {
+        const i = indexes[index];
+        if (i < dataschema.data.length) {
+          const timestamp = dataschema.timestamp.valueOf();
+          const value = dataschema.data[i];
+          dataCharts.push([timestamp, Number(value)]);
+        }
+      }
+      return dataCharts;
+    }
+  }
+
   let selectTimeMode! : HTMLSelectElement;
   let selectRange! : HTMLSelectElement;
   let datetimeBegin! : HTMLInputElement;
@@ -315,7 +334,7 @@ export default function DataSetLogView(props: DatasetLogViewProps) {
         <Show when={viewMode() == "graph"}>
           <div class="w-full flex flex-row flex-wrap">
             <For each={itemCharts()}>
-            {(item) => (
+            {(item, i) => (
               <div class="w-full xl:w-1/2 xs:px-1 py-1 max-w-xl">
                 <div class="xs:rounded-sm border border-slate-200 dark:border-slate-700">
                   <div class="flex flex-row items-center bg-gray-100 dark:bg-gray-800">
@@ -326,7 +345,13 @@ export default function DataSetLogView(props: DatasetLogViewProps) {
                     </div>
                   </div>
                   <div class="p-3 bg-white dark:bg-gray-900">
-                    <canvas class="w-full aspect-video"></canvas>
+                  <div class="aspect-video">
+                      <Show when={dataCharts(i()) && dataCharts(i())!.length !== 0} fallback={
+                        <div style={{ width: "100%",  height: "100%" }}></div>
+                      }>
+                        <TimeChart data={dataCharts(i())!} range={item.range} />
+                      </Show>
+                    </div>
                   </div>
                 </div>
               </div>

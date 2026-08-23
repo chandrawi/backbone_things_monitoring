@@ -19,7 +19,7 @@
         "view_mode": "table",
         "time_mode": "live",
         "float_precission": [4],
-        "chart_value_range": [[0.1]],
+        "chart_value_range": [[0.001]],
         "max_lost": 900000
       }
     },
@@ -38,7 +38,7 @@
         "view_mode": "table",
         "time_mode": "live",
         "float_precission": [2],
-        "chart_value_range": [[0.1]],
+        "chart_value_range": [[5]],
         "max_lost": 900000
       }
     },
@@ -57,7 +57,7 @@
         "view_mode": "table",
         "time_mode": "live",
         "float_precission": [3],
-        "chart_value_range": [[0.1]],
+        "chart_value_range": [[1]],
         "max_lost": 900000
       }
     },
@@ -76,7 +76,7 @@
         "view_mode": "table",
         "time_mode": "live",
         "float_precission": [3],
-        "chart_value_range": [[0.1]],
+        "chart_value_range": [[1],[0.1],[1],[0.1]],
         "max_lost": 900000
       }
     }

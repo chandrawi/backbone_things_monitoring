@@ -65,7 +65,7 @@ function getTimeInterval(data: LineChartPoint[]): number {
   return bestInterval;
 }
 
-function getDomainRange(data: LineChartPoint[], range: (number | undefined)[]) {
+function getDomainRange(data: LineChartPoint[], range: number[] = []) {
   const step = range[0];
   let min = range[1];
   let max = range[2];
@@ -73,7 +73,7 @@ function getDomainRange(data: LineChartPoint[], range: (number | undefined)[]) {
     if (min === undefined || d[1] < min) min = d[1];
     if (max === undefined || d[1] > max) max = d[1];
   }
-  if (step && min && max) {
+  if (step !== undefined && min !== undefined && max !== undefined) {
     min = Math.floor(min / step) * step;
     max = Math.ceil(max / step) * step;
   }
@@ -83,14 +83,11 @@ function getDomainRange(data: LineChartPoint[], range: (number | undefined)[]) {
 export default function TimeChart(props: Props) {
   let container!: HTMLDivElement;
   let chart: echarts.ECharts | undefined;
-  const resizeObserver = new ResizeObserver(() => {
-    if (chart) {
-      chart.resize();
-    }
-  });
 
   onMount(() => {
     chart = echarts.init(container);
+
+    const resizeObserver = new ResizeObserver(() => chart?.resize());
     resizeObserver.observe(container);
 
     onCleanup(() => {
@@ -102,10 +99,10 @@ export default function TimeChart(props: Props) {
 
   createEffect(() => {
     const data = props.data;
-    if (!chart) return;
+    if (!chart || data.length === 0) return;
 
     const xInterval = getTimeInterval(data) + 1;
-    const [min, max] = getDomainRange(data, props.range ? props.range : []);
+    const [min, max] = getDomainRange(data, props.range);
 
     const dark = darkTheme();
     const colorLabel = dark ? "#d1d5dc" : "#364153";
@@ -141,9 +138,6 @@ export default function TimeChart(props: Props) {
         type: "value",
         min: min,
         max: max,
-        axisTick: {
-          show: true,
-        },
         axisLine: {
           show: true,
           lineStyle: {
