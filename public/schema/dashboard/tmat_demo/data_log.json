@@ -1,0 +1,84 @@
+{
+  "name": "data_log",
+  "text": "Data Log",
+  "icon": "icon-data",
+  "mode": "flat",
+  "children": [
+    {
+      "name": "level_sensor",
+      "text": "Water Level",
+      "icon": "icon-list_square",
+      "model_id": "2ce8e1ed-0fbc-4316-9473-505e55c7a09a",
+      "model_index": [0],
+      "devices": [
+        { "id": "1fd8bbd4-63e0-47d3-ac76-352b3ef2bdf3", "name": "Level_Demo" }
+      ],
+      "config": {
+        "live_ranges": [300000, 900000, 1800000, 3600000, 14400000, 43200000, 86400000],
+        "live_range": 3600000,
+        "view_mode": "table",
+        "time_mode": "live",
+        "float_precission": [0],
+        "chart_value_range": [[10,0]],
+        "max_lost": 900000
+      }
+    },
+    {
+      "name": "soil_sensor",
+      "text": "Soil Sensor",
+      "icon": "icon-list_square",
+      "model_id": "63607213-c682-4ad8-8c3e-e15d1457d860",
+      "model_index": [0,1,2],
+      "devices": [
+        { "id": "24d640f6-76e5-45fa-95db-fb2a23c2e932", "name": "Soil_Demo" }
+      ],
+      "config": {
+        "live_ranges": [300000, 900000, 1800000, 3600000, 14400000, 43200000, 86400000],
+        "live_range": 3600000,
+        "view_mode": "table",
+        "time_mode": "live",
+        "float_precission": [1,1,1],
+        "chart_value_range": [[5],[10],[1]],
+        "max_lost": 900000
+      }
+    },
+    {
+      "name": "rain_gauge",
+      "text": "Rain Gauge",
+      "icon": "icon-list_square",
+      "model_id": "a57a7293-8186-4af6-b56c-f37f0995ada1",
+      "model_index": [0],
+      "devices": [
+        { "id": "35524a55-2ed8-4740-835d-f66f759e2990", "name": "Rainfall_Demo" }
+      ],
+      "config": {
+        "live_ranges": [300000, 900000, 1800000, 3600000, 14400000, 43200000, 86400000],
+        "live_range": 3600000,
+        "view_mode": "table",
+        "time_mode": "live",
+        "float_precission": [1],
+        "chart_value_range": [[5]],
+        "max_lost": 900000
+      }
+    },
+    {
+      "name": "power_monitor",
+      "text": "Power Monitor",
+      "icon": "icon-list_square",
+      "model_id": "cfe2c3d4-a44d-4ad9-8660-3c122e5caf89",
+      "model_index": [1,2,5,6],
+      "devices": [
+        { "id": "f0e08140-f2e9-47f0-bef5-0af1dbb9c712", "name": "power_monitor" }
+      ],
+      "config": {
+        "live_ranges": [300000, 900000, 1800000, 3600000, 14400000, 43200000, 86400000],
+        "live_range": 3600000,
+        "view_mode": "table",
+        "time_mode": "live",
+        "float_precission": [3],
+        "chart_value_range": [[1],[0.1],[1],[0.1]],
+        "max_lost": 900000
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "name": "dataset_log",
+  "text": "Data Set",
+  "icon": "icon-data_buffer",
+  "mode": "single",
+  "children": [
+    {
+      "name":"tmat_sensors",
+      "text": "TMAT Sensors",
+      "icon": "icon-list_square",
+      "sets": [
+        { "id": "0bcc2504-56b3-44cd-8243-c2c078c27808", "name": "tmat_sensors" }
+      ],
+      "config": {
+        "live_ranges": [1800000, 3600000, 14400000, 43200000, 86400000, 604800000, 2592000000],
+        "live_range": 3600000,
+        "view_mode": "table",
+        "time_mode": "live",
+        "float_precission": [0, 1, 1, 1, 1],
+        "chart_value_range": [[10,0],[5],[10],[1],[5]],
+        "max_lost": 900000
+      }
+    }
+  ]
+}

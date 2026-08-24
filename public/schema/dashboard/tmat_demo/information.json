@@ -1,0 +1,54 @@
+{
+  "name": "information",
+  "text": "Information",
+  "icon": "icon-list_square",
+  "children": [
+    {
+      "name": "description",
+      "text": "Description",
+      "icon": "icon-list_square",
+      "component": "description_default"
+    },
+    {
+      "name": "specification",
+      "text": "Specification",
+      "icon": "icon-list_square",
+      "component": "specification_table",
+      "table": [
+        {
+          "title": "Sensor Level Air",
+          "rows": [
+            ["model", "Hank HK-802"],
+            ["Rentang ukur", "0 ‒ 10 m"],
+            ["Resolusi", "1 cm"],
+            ["Akurasi", "±0.5% FS"],
+            ["Temperatur kerja", "-20°C ‒ 85°C"],
+            ["Sistem komunikasi", "RS-485"]
+          ]
+        },
+        {
+          "title": "Sensor Tanah",
+          "rows": [
+            ["model", "ZH-Soil7"],
+            ["Rentang ukur", "-40 ‒ 80 °C, 0 ‒ 100%, 3 ‒ 9 pH"],
+            ["Resolusi", "0.1 °C, 0.1%, 0.1 pH"],
+            ["Akurasi", "±0.5 °C, ±3%"],
+            ["Temperatur kerja", "-40 °C ‒ 80 °C"],
+            ["Sistem komunikasi", "RS-485"]
+          ]
+        },
+        {
+          "title": "Sensor Curah Hujan",
+          "rows": [
+            ["model", "Renke RS-YL-N01-2"],
+            ["Rentang intensitas", "0 ‒ 4 mm/min"],
+            ["Resolusi", "0.2 mm"],
+            ["Akurasi", "≤±3%"],
+            ["Temperatur kerja", "0 °C ‒ 50 °C"],
+            ["Sistem komunikasi", "RS-485"]
+          ]
+        }
+      ]
+    }
+  ]
+}

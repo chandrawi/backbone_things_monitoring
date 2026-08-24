@@ -2,7 +2,7 @@ import { createSignal, createEffect, createRoot, lazy } from "solid-js";
 
 const EXPIRE = 604800;
 export const LOCAL_FLAG = false;
-export const DEFAULT_DASHBOARD = "default";
+export const DEFAULT_DASHBOARD = "tmat_demo";
 export const DEFAULT_MENU = "overview";
 export const DefaultComponent = lazy(() => import("~/routes/dashboard/[name]/overview"));
 

@@ -1,0 +1,11 @@
+{
+  "name":"overview_cards",
+  "text": "TMAT Demo",
+  "icon": "icon-list_square",
+  "set": { "id": "0bcc2504-56b3-44cd-8243-c2c078c27808", "name": "tmat_demo" },
+  "config": {
+    "live_ranges": [1800000, 3600000, 14400000, 43200000, 86400000, 604800000, 2592000000],
+    "live_range": 3600000,
+    "float_precission": [0, 2, 1, 2, 1]
+  }
+}
