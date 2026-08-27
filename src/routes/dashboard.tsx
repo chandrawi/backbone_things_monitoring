@@ -1,13 +1,22 @@
 import { Title } from "@solidjs/meta";
 import { RouteSectionProps } from "@solidjs/router";
-import { Show, Suspense } from "solid-js";
+import { onMount, Show, Suspense } from "solid-js";
 import { darkTheme, userId } from "~/lib/store";
+import { dashboardPath } from "~/lib/utility";
+import { useBbthings } from "~/context/BbthingsContext";
 import { DashboardProvider } from "~/context/DashboardContext";
 import NavbarDashboard from "~/components/navigation/NavbarDashboard";
 import SidebarDashboard from "~/components/navigation/SidebarDashboard";
 import ErrorUnauthorized from "~/components/miscellaneous/ErrorUnauthorized";
 
 export default function Dashboard(props: RouteSectionProps) {
+  // update resource server object on bbthings context using dashboard path
+  const { setResourceName, resourceServer } = useBbthings();
+  const path = dashboardPath();
+  onMount(() => {
+    setResourceName(path.name);
+  });
+
   return (
     <>
       <Title>Dashboard</Title>
@@ -16,7 +25,7 @@ export default function Dashboard(props: RouteSectionProps) {
         <NavbarDashboard />
         <div class="drawer-content min-h-[calc(100vh-3.5rem)] mt-14 px-1.5 py-1.5 bg-slate-50 dark:bg-slate-800 text-gray-800 dark:text-gray-200 overflow-auto scrollbar-custom">
           <DashboardProvider>
-            <Show when={userId()} fallback={<ErrorUnauthorized />}>
+            <Show when={userId() && resourceServer()?.access_token !== ""} fallback={<ErrorUnauthorized />}>
               <Suspense>
                 {props.children}
               </Suspense>

@@ -5,7 +5,6 @@ export const LOCAL_FLAG = false;
 export const DEFAULT_DASHBOARD = "default";
 export const DEFAULT_MENU = "overview";
 export const DefaultComponent = lazy(() => import("~/routes/dashboard/[name]/overview"));
-export const ERROR_UNAUTHENTICATED = 16;
 
 function deleteCookie(name: string) {
   document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Strict";

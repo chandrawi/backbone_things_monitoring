@@ -6,9 +6,8 @@ import DescriptionDefault from "~/components/information/DescriptionDefault";
 import Breadcrumb from "~/components/navigation/Breadcrumb";
 
 export default function Information() {
-  // get dashboard schema context
-  const { schema, menuPath, setMenuPath } = useDashboard();
   // update dashboard schema using dashboard path
+  const { schema, menuPath, setMenuPath } = useDashboard();
   const path = dashboardPath();
   onMount(() => {
     const p = menuPath();

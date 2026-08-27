@@ -1,7 +1,6 @@
 import { Show, For, Suspense, createSignal, createResource, createEffect } from "solid-js";
 import { useSearchParams } from "@solidjs/router";
 import { read_set, list_model_by_ids, list_data_set_by_range } from "bbthings_grpc/resource";
-import { ERROR_UNAUTHENTICATED, setUserId } from "~/lib/store";
 import { dateToString, rangeName } from "~/lib/utility";
 import { OverviewCardsSchema } from "~/lib/definition";
 import { useBbthings } from "~/context/BbthingsContext";
@@ -35,9 +34,8 @@ export default function OverviewCards(props: OverviewCardsProps) {
         }
         return [];
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      if (error.code === ERROR_UNAUTHENTICATED) setUserId(null);
     }
     return [];
   });
@@ -53,9 +51,8 @@ export default function OverviewCards(props: OverviewCardsProps) {
         end: new Date(tEnd),
         tag: null
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      if (error.code === ERROR_UNAUTHENTICATED) setUserId(null);
     }
     return [];
   });

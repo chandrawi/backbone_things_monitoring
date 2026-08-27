@@ -1,19 +1,16 @@
 import { onMount, Match, Show, Switch } from "solid-js";
 import { DataLogSchema } from "~/lib/definition";
 import { dashboardPath, breadcrumbDataLog } from "~/lib/utility";
-import { useBbthings } from "~/context/BbthingsContext";
 import { useDashboard } from "~/context/DashboardContext";
 import Breadcrumb from "~/components/navigation/Breadcrumb";
 import DataLogView from "~/components/data_log/DataLogView";
 import DataSetLogView from "~/components/data_log/DatasetLogView";
 
 export default function DataLogItem() {
-  // update resource server object on bbthings context and dashboard schema using dashboard path
-  const { setResourceName } = useBbthings();
+  // update dashboard schema using dashboard path
   const { schema, menuPath, setMenuPath } = useDashboard();
   const path = dashboardPath();
   onMount(() => {
-    setResourceName(path.name);
     const p = menuPath();
     if (p[0] != path.name || p[1] != path.menu) {
       setMenuPath([path.name, path.menu]);

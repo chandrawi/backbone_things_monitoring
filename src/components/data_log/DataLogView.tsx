@@ -1,7 +1,6 @@
 import { useSearchParams } from "@solidjs/router";
 import { createEffect, createMemo, createResource, createSignal, For, Show, Suspense } from "solid-js";
 import { list_data_by_range, read_model } from "bbthings_grpc/resource";
-import { ERROR_UNAUTHENTICATED, setUserId } from "~/lib/store";
 import { dashboardPath, dateToString, rangeName, exportToCsv } from "~/lib/utility";
 import { DataLogSchema, DataLogViewSchema } from "~/lib/definition";
 import { useBbthings } from "~/context/BbthingsContext";
@@ -66,9 +65,8 @@ export default function DataLogView(props: DataLogViewProps) {
     try {
       const model = await read_model(resourceServer(), { id: input.data_log.model_id });
       return model.configs;
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      if (error.code === ERROR_UNAUTHENTICATED) setUserId(null);
     }
   });
 
@@ -95,9 +93,8 @@ export default function DataLogView(props: DataLogViewProps) {
           tag: null
         });
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      if (error.code === ERROR_UNAUTHENTICATED) setUserId(null);
     }
     return [];
   });
