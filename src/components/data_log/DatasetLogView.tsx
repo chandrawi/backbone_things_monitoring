@@ -28,7 +28,7 @@ export default function DataSetLogView(props: DatasetLogViewProps) {
     };
   });
   const config = () => data_log()?.config;
-  // construct resource input object using data_log schema and dashboard path
+  // construct resource input object using data_log schema, dashboard path, and bbthings context
   const input = createMemo(() => {
     const dp = dashboardPath();
     const dl = data_log();
@@ -36,7 +36,11 @@ export default function DataSetLogView(props: DatasetLogViewProps) {
       if (!dp.item && dl?.sets.length) {
         dp.item = dl.sets[0].name;
       }
-      return { data_log: dl, path: dp };
+      return {
+        data_log: dl,
+        path: dp,
+        server: resourceServer()
+      };
     }
   });
   const setMeta = () => data_log()?.sets.find((item) => item.name == input()?.path.item);
@@ -64,9 +68,9 @@ export default function DataSetLogView(props: DatasetLogViewProps) {
   const [model_config, {refetch: refetchConfig}] = createResource(input, async (input) => {
     try {
       const set_id = input.data_log.sets?.find((item) => item.name == input.path.item)?.id;
-      const set = await read_set(resourceServer(), { id: set_id ? set_id : "" });
+      const set = await read_set(input.server, { id: set_id ? set_id : "" });
       const model_ids = set.members.map(member => member.model_id);
-      const models = await list_model_by_ids(resourceServer(), { ids: model_ids });
+      const models = await list_model_by_ids(input.server, { ids: model_ids });
       // get models configuration corresponding data set definition
       return set.members.flatMap((member) => {
         const model = models.find(model => model.id == member.model_id);
@@ -86,7 +90,7 @@ export default function DataSetLogView(props: DatasetLogViewProps) {
     try {
       if (timeMode() == "live") {
         const tLater = new Date(Date.now() - timeLater());
-        return await list_data_set_by_range(resourceServer(), {
+        return await list_data_set_by_range(input.server, {
           set_id: set_id ? set_id : "",
           begin: tLater,
           end: new Date(Date.now()),
@@ -94,7 +98,7 @@ export default function DataSetLogView(props: DatasetLogViewProps) {
         });
       }
       else if (timeMode() == "history") {
-        return await list_data_set_by_range(resourceServer(), {
+        return await list_data_set_by_range(input.server, {
           set_id: set_id ? set_id : "",
           begin: timeBegin(),
           end: timeEnd(),

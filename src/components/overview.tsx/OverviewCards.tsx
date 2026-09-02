@@ -1,4 +1,4 @@
-import { Show, For, Suspense, createSignal, createResource, createEffect } from "solid-js";
+import { Show, For, Suspense, createSignal, createResource, createEffect, createMemo } from "solid-js";
 import { useSearchParams } from "@solidjs/router";
 import { read_set, list_model_by_ids, list_data_set_by_range } from "bbthings_grpc/resource";
 import { dateToString, rangeName } from "~/lib/utility";
@@ -15,17 +15,25 @@ export default function OverviewCards(props: OverviewCardsProps) {
   const { resourceServer } = useBbthings();
   const config = props.overview.config;
 
+  // construct resource input object using overview schema and bbthings context
+  const input = createMemo(() => {
+    return {
+      overview: props.overview,
+      server: resourceServer()
+    };
+  });
+
   // define time later setting signal
   const [searchParams, setSearchParams] = useSearchParams();
   const initTimeLater= typeof searchParams.later === "string" ? parseInt(searchParams.later) : config.live_range;
   let [timeLater, setTimeLater] = createSignal(initTimeLater);
 
   // get models from data set definition based on set id in overview schema
-  const [model_config, {refetch: refetchConfig}] = createResource(props.overview, async (overview) => {
+  const [model_config, {refetch: refetchConfig}] = createResource(input, async (input) => {
     try {
-      const set = await read_set(resourceServer(), { id: overview.set.id });
+      const set = await read_set(input.server, { id: input.overview.set.id });
       const model_ids = set.members.map(member => member.model_id);
-      const models = await list_model_by_ids(resourceServer(), { ids: model_ids });
+      const models = await list_model_by_ids(input.server, { ids: model_ids });
       // get models configuration corresponding data set definition
       return set.members.flatMap((member) => {
         const model = models.find(model => model.id == member.model_id);
@@ -41,12 +49,12 @@ export default function OverviewCards(props: OverviewCardsProps) {
   });
 
   // get data set schema based on set id in overview schema and time later setting
-  const [dataset, {refetch: refetchData}] = createResource(props.overview, async (overview) => {
+  const [dataset, {refetch: refetchData}] = createResource(input, async (input) => {
     const tEnd = Date.now();
     const tBegin = tEnd - timeLater();
     try {
-      return await list_data_set_by_range(resourceServer(), {
-        set_id: overview.set.id,
+      return await list_data_set_by_range(input.server, {
+        set_id: input.overview.set.id,
         begin: new Date(tBegin),
         end: new Date(tEnd),
         tag: null

@@ -1,4 +1,4 @@
-import { Show, createResource, Suspense } from "solid-js";
+import { Show, Suspense, createResource, createMemo } from "solid-js";
 import { read_user } from "bbthings_grpc/auth";
 import { userId } from "~/lib/store";
 import { useBbthings } from "~/context/BbthingsContext";
@@ -7,10 +7,16 @@ export default function ProfileMenu() {
   const { authServer } = useBbthings();
 
   // get user data using stored user_id
-  const [userData] = createResource(userId, async (user_id) => {
+  const input = createMemo(() => {
+    return {
+      user_id: userId(),
+      server: authServer()
+    };
+  });
+  const [userData] = createResource(input, async (input) => {
     try {
-      if (user_id) {
-        return await read_user(authServer(), { id: user_id });
+      if (input.user_id && input.server.address) {
+        return await read_user(input.server, { id: input.user_id });
       }
     } catch (error) {
       console.error(error);

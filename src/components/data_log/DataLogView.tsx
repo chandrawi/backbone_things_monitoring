@@ -28,7 +28,7 @@ export default function DataLogView(props: DataLogViewProps) {
     };
   });
   const config = () => data_log()?.config;
-  // construct resource input object using data_log schema and dashboard path
+  // construct resource input object using data_log schema, dashboard path, and bbthings context
   const input = createMemo(() => {
     const dp = dashboardPath();
     const dl = data_log();
@@ -36,7 +36,11 @@ export default function DataLogView(props: DataLogViewProps) {
       if (!dp.item && dl?.devices.length) {
         dp.item = dl.devices[0].name;
       }
-      return { data_log: dl, path: dp };
+      return {
+        data_log: dl,
+        path: dp,
+        server: resourceServer()
+      };
     }
   });
   const deviceMeta = () => data_log()?.devices.find((item) => item.name == input()?.path.item);
@@ -63,7 +67,7 @@ export default function DataLogView(props: DataLogViewProps) {
   // get model definition based on model id in data_log schema
   const [model_config, {refetch: refetchConfig}] = createResource(input, async (input) => {
     try {
-      const model = await read_model(resourceServer(), { id: input.data_log.model_id });
+      const model = await read_model(input.server, { id: input.data_log.model_id });
       return model.configs;
     } catch (error) {
       console.error(error);
@@ -76,7 +80,7 @@ export default function DataLogView(props: DataLogViewProps) {
     try {
       if (timeMode() == "live") {
         const tLater = new Date(Date.now() - timeLater());
-        return await list_data_by_range(resourceServer(), {
+        return await list_data_by_range(input.server, {
           device_id: device_id ? device_id : "",
           model_id: input.data_log.model_id,
           begin: tLater,
@@ -85,7 +89,7 @@ export default function DataLogView(props: DataLogViewProps) {
         });
       }
       else if (timeMode() == "history") {
-        return await list_data_by_range(resourceServer(), {
+        return await list_data_by_range(input.server, {
           device_id: device_id ? device_id : "",
           model_id: input.data_log.model_id,
           begin: timeBegin(),
