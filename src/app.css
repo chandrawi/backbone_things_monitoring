@@ -20,6 +20,30 @@
   body {
     @apply min-w-[375px] font-inter;
   }
+
+  html {
+    font-size: 16px;
+  }
+  @media (min-width: theme(--breakpoint-fhd)) {
+    html {
+      font-size: 20px;
+    }
+  }
+  @media (min-width: theme(--breakpoint-qhd)) {
+    html {
+      font-size: 24px;
+    }
+  }
+  @media (min-width: theme(--breakpoint-qhd-plus)) {
+    html {
+      font-size: 28px;
+    }
+  }
+  @media (min-width: theme(--breakpoint-uhd)) {
+    html {
+      font-size: 32px;
+    }
+  }
 }
 
 @layer components {

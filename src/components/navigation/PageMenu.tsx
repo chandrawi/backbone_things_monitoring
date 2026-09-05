@@ -10,7 +10,7 @@ interface PageMenuProps {
 export default function PageMenu(props: PageMenuProps) {
 
   const isActive = () => dashboardPath().menu === props.menu.name;
-  const isActiveSub = (name: string) => dashboardPath().submenu === name;
+  const isActiveSub = (name: string) => dashboardPath().submenu === name || dashboardPath().item === name;
 
   const setLink = (link: string, menu: string, submenu: string | null = null) => {
     if (link != "") return "/dashboard/" + dashboardPath().name + link;

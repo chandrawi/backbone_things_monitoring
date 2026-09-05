@@ -2,16 +2,16 @@ import { Show, For, Suspense, createSignal, createResource, createEffect, create
 import { useSearchParams } from "@solidjs/router";
 import { read_set, list_model_by_ids, list_data_set_by_range } from "bbthings_grpc/resource";
 import { dateToString, rangeName } from "~/lib/utility";
-import { OverviewCardsSchema } from "~/lib/definition";
+import { OverviewCardGroupSchema } from "~/lib/definition";
 import { useBbthings } from "~/context/BbthingsContext";
 import LoadingData from "../miscellaneous/LoadingData";
 import RefreshData from "../miscellaneous/RefreshData";
 
-interface OverviewCardsProps {
-  overview: OverviewCardsSchema;
+interface OverviewCardGroupProps {
+  overview: OverviewCardGroupSchema;
 };
 
-export default function OverviewCards(props: OverviewCardsProps) {
+export default function OverviewCardGroup(props: OverviewCardGroupProps) {
   const { resourceServer } = useBbthings();
   const config = props.overview.config;
 
@@ -31,7 +31,7 @@ export default function OverviewCards(props: OverviewCardsProps) {
   // get models from data set definition based on set id in overview schema
   const [model_config, {refetch: refetchConfig}] = createResource(input, async (input) => {
     try {
-      const set = await read_set(input.server, { id: input.overview.set.id });
+      const set = await read_set(input.server, { id: input.overview.sets[0].id });
       const model_ids = set.members.map(member => member.model_id);
       const models = await list_model_by_ids(input.server, { ids: model_ids });
       // get models configuration corresponding data set definition
@@ -48,17 +48,24 @@ export default function OverviewCards(props: OverviewCardsProps) {
     return [];
   });
 
-  // get data set schema based on set id in overview schema and time later setting
-  const [dataset, {refetch: refetchData}] = createResource(input, async (input) => {
+  // get a group of data set schema based on set id in overview schema and time later setting
+  const [datasetGroup, {refetch: refetchData}] = createResource(input, async (input) => {
     const tEnd = Date.now();
     const tBegin = tEnd - timeLater();
     try {
-      return await list_data_set_by_range(input.server, {
-        set_id: input.overview.set.id,
-        begin: new Date(tBegin),
-        end: new Date(tEnd),
-        tag: null
-      });
+      const promises = input.overview.sets.map(async(set) => 
+        list_data_set_by_range(input.server, {
+          set_id: set.id,
+          begin: new Date(tBegin),
+          end: new Date(tEnd),
+          tag: null
+        }).catch(error => {
+          console.error(error);
+          return null;
+        })
+      );
+      const results = await Promise.all(promises);
+      return results.filter(data => data !== null);
     } catch (error) {
       console.error(error);
     }
@@ -68,25 +75,34 @@ export default function OverviewCards(props: OverviewCardsProps) {
   // create an object containing the latest data set and the model configurations for display on the cards
   function datasetLast() {
     const configs = model_config();
-    const datasets = dataset();
-    if (datasets && configs && configs.length) {
-      const dataset = datasets[datasets.length-1];
-      const dataLast = [];
-      for (const i in configs) {
-        const scale = configs[i].filter((conf) => conf.name == "scale").reduce((_: any, conf) => conf).value;
-        const symbol = configs[i].filter((conf) => conf.name == "symbol").reduce((_: any, conf) => conf).value;
-        const precission = Array.isArray(config.float_precission)
-          ? typeof config.float_precission[i] == "number" ? config.float_precission[i] : null
-          : null;
-        dataLast.push({
+    const datasetGroups = datasetGroup();
+    const sets = props.overview.sets;
+    if (datasetGroups && configs && configs.length) {
+      const dataLastGroup = [];
+      for (const index in datasetGroups) {
+        const datasets = datasetGroups[index];
+        const dataset = datasets[datasets.length-1];
+        const dataLast = [];
+        for (const i in configs) {
+          const scale = configs[i].filter((conf) => conf.name == "scale").reduce((_: any, conf) => conf).value;
+          const symbol = configs[i].filter((conf) => conf.name == "symbol").reduce((_: any, conf) => conf).value;
+          const precission = Array.isArray(config.float_precission)
+            ? typeof config.float_precission[i] == "number" ? config.float_precission[i] : null
+            : null;
+          dataLast.push({
+            data: dataset ? Number(dataset.data[i]) : null,
+            scale: scale,
+            symbol: symbol,
+            precission: precission
+          });
+        }
+        dataLastGroup.push({
+          name: sets[index].name,
           timestamp: dataset ? dateToString(dataset.timestamp) : null,
-          data: dataset ? Number(dataset.data[i]) : null,
-          scale: scale,
-          symbol: symbol,
-          precission: precission
+          data: dataLast
         });
       }
-      return dataLast;
+      return dataLastGroup;
     }
   }
 
@@ -149,28 +165,35 @@ export default function OverviewCards(props: OverviewCardsProps) {
         <RefreshData action={() => { refetchData(); refetchConfig(); }} message="Dataset definition not found" />
       }>
 
-        <div class="w-full flex flex-row flex-wrap">
-          <For each={datasetLast()}>
-          {(item) => (
-            <div class="w-full min-w-40 max-w-[18rem] xs:px-1 py-1">
-              <div class="xs:rounded-sm border border-slate-200 dark:border-slate-700">
-                <div class="flex flex-row justify-center items-center bg-gray-100 dark:bg-gray-800">
-                  <div class="mx-3 my-2 flex flex-row items-center font-medium">
-                    <span class="align-middle text-md font-semibold text-sky-900 dark:text-sky-200">{String(item.scale)}&nbsp;</span>
+        <For each={datasetLast()}>
+        {(items) => (
+          <div class="w-full xs:px-1 py-1">
+            <div class="w-full max-w-3xl xs:rounded-sm border border-slate-200 dark:border-slate-700">
+              <div class="flex flex-row justify-center items-center mx-3 my-2 bg-gray-100 dark:bg-gray-800">
+                <span class="align-middle text-md font-semibold">{items.name}&nbsp;</span>
+              </div>
+              <div class="flex flex-row flex-wrap px-2 sm:px-3 py-2 bg-white dark:bg-gray-900">
+                <For each={items.data}>
+                {(item) => (
+                  <div class="flex-1 px-2 sm:px-3">
+                    <div class="w-full text-center pt-1">
+                      <span class="align-middle text-sm font-semibold text-sky-900 dark:text-sky-200">{String(item.scale)}&nbsp;</span>
+                    </div>
+                    <div class="flex flex-row justify-center py-1">
+                      <span class="text-2xl/8 font-semibold">{item.data === null ? "--" : item.precission ? item.data.toFixed(item.precission) : String(item.data)}&nbsp;</span>
+                      <span class="text-sm/8">&nbsp;{String(item.symbol)}</span>
+                    </div>
                   </div>
-                </div>
-                <div class="flex flex-row justify-center pt-5 pb-4 bg-white dark:bg-gray-900">
-                  <span class="text-2xl/8 font-semibold">{item.data === null ? "--" : item.precission ? item.data.toFixed(item.precission) : String(item.data)}&nbsp;</span>
-                  <span class="text-sm/8">&nbsp;{String(item.symbol)}</span>
-                </div>
-                <div class="flex flex-row justify-center py-2 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-gray-900">
-                  <span class="text-sm">{item.timestamp}&nbsp;</span>
-                </div>
+                )}
+                </For>
+              </div>
+              <div class="flex flex-row justify-center px-3 py-2 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-gray-900">
+                <span class="text-sm">{items.timestamp}&nbsp;</span>
               </div>
             </div>
-          )}
-          </For>
-        </div>
+          </div>
+        )}
+        </For>
 
       </Show>
     </Suspense>

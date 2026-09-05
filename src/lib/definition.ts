@@ -58,7 +58,19 @@ export type OverviewCardsSchema = BasicSchema & {
   };
 };
 
-export type OverviewSchema = OverviewCardsSchema;
+export type OverviewCardGroupSchema = BasicSchema & {
+  sets: {
+    id: string;
+    name: string;
+  }[];
+  config: {
+    live_range: number;
+    live_ranges: number[];
+    float_precission: number[];
+  };
+};
+
+export type OverviewSchema = OverviewCardsSchema | OverviewCardGroupSchema;
 
 export type InformationDescriptionSchema = BasicSchema & {
   component: string;
