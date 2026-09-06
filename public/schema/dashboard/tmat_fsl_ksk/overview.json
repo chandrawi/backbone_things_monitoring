@@ -1,0 +1,16 @@
+{
+  "name":"overview_card_group",
+  "text": "TMAT KSK & FSL",
+  "icon": "icon-list_square",
+  "sets": [
+    { "id": "1584e644-979e-4643-ae2a-ce87855b71a1", "name": "KSK 1" },
+    { "id": "265c1bd4-c4dd-42d5-b97b-474c52db3119", "name": "FSL 1" },
+    { "id": "38c63798-6cdd-49d0-9a44-e4526435637f", "name": "FSL 2" },
+    { "id": "4ca8b7f9-8eab-4da6-8f9f-cbeba1b71848", "name": "FSL 3" }
+  ],
+  "config": {
+    "live_ranges": [1800000, 3600000, 14400000, 43200000, 86400000, 604800000, 2592000000],
+    "live_range": 3600000,
+    "float_precission": [0, 1, 1, 1, 1]
+  }
+}

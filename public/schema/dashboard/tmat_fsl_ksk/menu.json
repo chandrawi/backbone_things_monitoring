@@ -1,0 +1,99 @@
+[{
+  "id": 0,
+  "parent_id": 0,
+  "name": "overview",
+  "text": "Overview",
+  "icon": "icon-overview",
+  "link": ""
+}, {
+  "id": 1,
+  "parent_id": 1,
+  "name": "information",
+  "text": "Information",
+  "icon": "icon-information",
+  "link": ""
+}, {
+  "id": 2,
+  "parent_id": 1,
+  "name": "description",
+  "text": "Description",
+  "icon": "icon-list_square",
+  "link": ""
+}, {
+  "id": 3,
+  "parent_id": 1,
+  "name": "specification",
+  "text": "Specification",
+  "icon": "icon-list_square",
+  "link": ""
+}, {
+  "id": 4,
+  "parent_id": 4,
+  "name": "data_log",
+  "text": "Data Log",
+  "icon": "icon-data",
+  "link": ""
+}, {
+  "id": 5,
+  "parent_id": 4,
+  "name": "level_sensor",
+  "text": "Water Level",
+  "icon": "icon-list_square",
+  "link": ""
+}, {
+  "id": 6,
+  "parent_id": 4,
+  "name": "soil_sensor",
+  "text": "Soil Sensor",
+  "icon": "icon-list_square",
+  "link": ""
+}, {
+  "id": 7,
+  "parent_id": 4,
+  "name": "rain_gauge",
+  "text": "Rain Gauge",
+  "icon": "icon-list_square",
+  "link": ""
+}, {
+  "id": 8,
+  "parent_id": 4,
+  "name": "power_monitor",
+  "text": "Power Monitor",
+  "icon": "icon-list_square",
+  "link": ""
+}, {
+  "id": 9,
+  "parent_id": 9,
+  "name": "dataset_log",
+  "text": "Data Set",
+  "icon": "icon-data_buffer",
+  "link": ""
+}, {
+  "id": 10,
+  "parent_id": 9,
+  "name": "tmat_KSK_1",
+  "text": "TMAT KSK 1",
+  "icon": "icon-data_buffer",
+  "link": "/dataset_log/tmat_sensors/tmat_KSK_1"
+}, {
+  "id": 11,
+  "parent_id": 9,
+  "name": "tmat_FSL_1",
+  "text": "TMAT FSL 1",
+  "icon": "icon-data_buffer",
+  "link": "/dataset_log/tmat_sensors/tmat_FSL_1"
+}, {
+  "id": 12,
+  "parent_id": 9,
+  "name": "tmat_FSL_2",
+  "text": "TMAT FSL 2",
+  "icon": "icon-data_buffer",
+  "link": "/dataset_log/tmat_sensors/tmat_FSL_2"
+}, {
+  "id": 13,
+  "parent_id": 9,
+  "name": "tmat_FSL_3",
+  "text": "TMAT FSL 3",
+  "icon": "icon-data_buffer",
+  "link": "/dataset_log/tmat_sensors/tmat_FSL_3"
+}]

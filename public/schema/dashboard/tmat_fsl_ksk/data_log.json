@@ -1,0 +1,96 @@
+{
+  "name": "data_log",
+  "text": "Data Log",
+  "icon": "icon-data",
+  "mode": "nested",
+  "children": [
+    {
+      "name": "level_sensor",
+      "text": "Water Level",
+      "icon": "icon-list_square",
+      "model_id": "2ce8e1ed-0fbc-4316-9473-505e55c7a09a",
+      "model_index": [0],
+      "devices": [
+        { "id": "1f302aad-9e88-45aa-9c9c-da68711c74f2", "name": "Level_KSK_1" },
+        { "id": "1e7abbdc-11da-461b-ba5b-06f48b0b3e23", "name": "Level_FSL_1" },
+        { "id": "14903fff-a681-45c1-8f2f-35d6f461007c", "name": "Level_FSL_2" },
+        { "id": "145f441d-80e6-4ce3-ad96-47b0b5520de2", "name": "Level_FSL_3" }
+      ],
+      "config": {
+        "live_ranges": [300000, 900000, 1800000, 3600000, 14400000, 43200000, 86400000],
+        "live_range": 3600000,
+        "view_mode": "table",
+        "time_mode": "live",
+        "float_precission": [0],
+        "chart_value_range": [[10,0]],
+        "max_lost": 900000
+      }
+    },
+    {
+      "name": "soil_sensor",
+      "text": "Soil Sensor",
+      "icon": "icon-list_square",
+      "model_id": "63607213-c682-4ad8-8c3e-e15d1457d860",
+      "model_index": [0,1,2],
+      "devices": [
+        { "id": "2544bb1c-becc-4317-9994-d7f905f9c448", "name": "Soil_KSK_1" },
+        { "id": "2361f759-6841-4700-a012-672e8c5d1b48", "name": "Soil_FSL_1" },
+        { "id": "29a01faf-ada8-4e04-88dd-2f6db6504a51", "name": "Soil_FSL_2" },
+        { "id": "24514821-0dc0-4bf5-b7f4-b72f0d24556f", "name": "Soil_FSL_3" }
+      ],
+      "config": {
+        "live_ranges": [300000, 900000, 1800000, 3600000, 14400000, 43200000, 86400000],
+        "live_range": 3600000,
+        "view_mode": "table",
+        "time_mode": "live",
+        "float_precission": [1,1,1],
+        "chart_value_range": [[5],[10],[1]],
+        "max_lost": 900000
+      }
+    },
+    {
+      "name": "rain_gauge",
+      "text": "Rain Gauge",
+      "icon": "icon-list_square",
+      "model_id": "a57a7293-8186-4af6-b56c-f37f0995ada1",
+      "model_index": [0],
+      "devices": [
+        { "id": "3c29d2b4-7d7a-4354-8d7c-4c5974e725e9", "name": "Rainfall_KSK_1" },
+        { "id": "3a0b2e03-f65d-46bf-ae75-784ebdaf7468", "name": "Rainfall_FSL_1" },
+        { "id": "3ed1f9a8-9bc0-4e6e-86e8-668d32beaaba", "name": "Rainfall_FSL_2" },
+        { "id": "34c34c4e-bbad-4a31-903a-6f9e9c31594e", "name": "Rainfall_FSL_3" }
+      ],
+      "config": {
+        "live_ranges": [300000, 900000, 1800000, 3600000, 14400000, 43200000, 86400000],
+        "live_range": 3600000,
+        "view_mode": "table",
+        "time_mode": "live",
+        "float_precission": [1],
+        "chart_value_range": [[5]],
+        "max_lost": 900000
+      }
+    },
+    {
+      "name": "power_monitor",
+      "text": "Power Monitor",
+      "icon": "icon-list_square",
+      "model_id": "cfe2c3d4-a44d-4ad9-8660-3c122e5caf89",
+      "model_index": [1,2,5,6],
+      "devices": [
+        { "id": "f252ec65-e9d2-4cc7-ae25-4612af5ff3cc", "name": "power_KSK_1" },
+        { "id": "fa3d2f5a-2005-408f-9e07-6b85b029e0dc", "name": "power_FSL_1" },
+        { "id": "f6c33774-89e2-4b35-9d46-a5372c3a5f73", "name": "power_FSL_2" },
+        { "id": "f4740296-acaf-4e38-bb42-e03440d4e9ad", "name": "power_FSL_3" }
+      ],
+      "config": {
+        "live_ranges": [300000, 900000, 1800000, 3600000, 14400000, 43200000, 86400000],
+        "live_range": 3600000,
+        "view_mode": "table",
+        "time_mode": "live",
+        "float_precission": [3],
+        "chart_value_range": [[1],[0.1],[1],[0.1]],
+        "max_lost": 900000
+      }
+    }
+  ]
+}
